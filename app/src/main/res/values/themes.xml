@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DFGController" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.DFGController.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0D0F14</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/app_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.DFGController</item>
+    </style>
+</resources>

@@ -31,7 +31,7 @@ import com.daisyforgaming.ui.theme.ElectricCyan
 import com.daisyforgaming.ui.theme.DarkSurface
 
 @Composable
-fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit) {
+fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, onNavigateToWakelocks: () -> Unit) {
     val fastCharge by viewModel.fastCharge.collectAsState()
     val dynamicFsync by viewModel.dynamicFsync.collectAsState()
     val bypassTriggerEnabled by viewModel.bypassTriggerEnabled.collectAsState()
@@ -81,6 +81,16 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit) {
                 checked = chargePriority,
                 onCheckedChange = { viewModel.setChargePriority(it) }
             )
+        }
+
+        item {
+            Button(
+                onClick = onNavigateToWakelocks,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = DarkSurface)
+            ) {
+                Text("OPEN WAKELOCK INSPECTOR", color = ElectricCyan)
+            }
         }
 
         if (autoFastChargeActive) {

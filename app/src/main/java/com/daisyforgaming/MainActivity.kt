@@ -42,6 +42,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object AppSelector : Screen("app_selector", "App Selector", Icons.Default.List)
     object About : Screen("about", "About", Icons.Default.Info)
     object Compatibility : Screen("compatibility", "Compatibility", Icons.Default.CheckCircle)
+    object Wakelocks : Screen("wakelocks", "Wakelocks", Icons.Default.BatteryAlert)
 }
 
 class MainActivity : ComponentActivity() {
@@ -209,7 +210,8 @@ fun MainScaffold(viewModel: MainViewModel) {
             composable(Screen.Power.route) { 
                 PowerScreen(
                     viewModel = viewModel,
-                    onNavigateToAppSelector = { navController.navigate(Screen.AppSelector.route) }
+                    onNavigateToAppSelector = { navController.navigate(Screen.AppSelector.route) },
+                    onNavigateToWakelocks = { navController.navigate(Screen.Wakelocks.route) }
                 ) 
             }
             composable(Screen.AppSelector.route) { 
@@ -223,6 +225,9 @@ fun MainScaffold(viewModel: MainViewModel) {
             }
             composable(Screen.Compatibility.route) {
                 CompatibilityScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Wakelocks.route) {
+                WakelockScreen(onBack = { navController.popBackStack() })
             }
         }
     }

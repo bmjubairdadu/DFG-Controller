@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,6 +44,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object About : Screen("about", "About", Icons.Default.Info)
     object Compatibility : Screen("compatibility", "Compatibility", Icons.Default.CheckCircle)
     object Wakelocks : Screen("wakelocks", "Wakelocks", Icons.Default.BatteryAlert)
+    object Packages : Screen("packages", "Packages", Icons.AutoMirrored.Filled.ListAlt)
 }
 
 class MainActivity : ComponentActivity() {
@@ -221,13 +223,19 @@ fun MainScaffold(viewModel: MainViewModel) {
                 ) 
             }
             composable(Screen.About.route) {
-                AboutScreen(onNavigateToCompatibility = { navController.navigate(Screen.Compatibility.route) })
+                AboutScreen(
+                    onNavigateToCompatibility = { navController.navigate(Screen.Compatibility.route) },
+                    onNavigateToPackages = { navController.navigate(Screen.Packages.route) }
+                )
             }
             composable(Screen.Compatibility.route) {
                 CompatibilityScreen(onBack = { navController.popBackStack() })
             }
             composable(Screen.Wakelocks.route) {
                 WakelockScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Packages.route) {
+                PackagesScreen(onBack = { navController.popBackStack() })
             }
         }
     }

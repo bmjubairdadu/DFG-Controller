@@ -17,7 +17,7 @@ import com.daisyforgaming.R
 import com.daisyforgaming.ui.theme.ElectricCyan
 
 @Composable
-fun AboutScreen(onNavigateToCompatibility: () -> Unit) {
+fun AboutScreen(onNavigateToCompatibility: () -> Unit, onNavigateToPackages: () -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,9 +46,20 @@ fun AboutScreen(onNavigateToCompatibility: () -> Unit) {
             
             Button(
                 onClick = onNavigateToCompatibility,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f))
+                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("KERNEL COMPATIBILITY INFO", color = ElectricCyan)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Button(
+                onClick = onNavigateToPackages,
+                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("SYSTEM PACKAGES", color = ElectricCyan)
             }
             
             Spacer(modifier = Modifier.height(48.dp))

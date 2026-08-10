@@ -2,6 +2,7 @@ package com.daisyforgaming
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -54,6 +55,21 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val fadeOut = splashScreenView.view.animate()
+                .alpha(0f)
+                .scaleX(1.2f)
+                .scaleY(1.2f)
+                .setDuration(500L)
+                .setInterpolator(AnticipateInterpolator())
+            
+            fadeOut.withEndAction {
+                splashScreenView.remove()
+            }
+            
+            fadeOut.start()
+        }
+
         observeServiceState()
         
         setContent {

@@ -1,28 +1,23 @@
-# Security Policy
+# Security and Play Protect Compatibility
 
-Security and integrity are top priorities for DFG Controller.
+DFG Controller is committed to transparency and user security. This document explains our security measures and how we handle Play Protect compatibility.
 
-## Anti-Tamper Measures
-To protect users from modified or malicious versions of the app, DFG Controller implements several security checks:
+## Play Protect & Installation
+Sideloaded apps that use sensitive features like **Root Access** and **App Installation** may trigger Google Play Protect warnings such as "App blocked" or "App scan recommended". 
 
-1. **Signature Verification**: On startup, the app verifies its own signing certificate hash. If it does not match the official DaisyForGaming key, functionality is disabled.
-2. **Debugger Block**: In release builds, the app detects if a debugger is attached and prevents root-shell operations to thwart memory analysis.
-3. **String Obfuscation**: Critical sysfs paths are encrypted within the binary to make simple reverse engineering and automated exploitation harder.
+### Legitimate Reasons for Warnings
+1. **Root Access**: DFG Controller interacts with the Linux kernel via `sysfs`. This requires root shell execution, which is a high-risk behavior monitored by security scanners.
+2. **In-App Updates**: To provide updates without a centralized store, the app requests `REQUEST_INSTALL_PACKAGES`.
+3. **Usage Stats**: Needed to detect game launches for automation.
 
-## Update Integrity
-The built-in update client verifies every download using a **SHA-256** checksum. This ensures that the APK you install is exactly the same one published by the developers, protecting against man-in-the-middle attacks.
+### Our Integrity Measures
+- **Release Signing**: Official builds are signed with a private release key using **V2 and V3 Signature Schemes**.
+- **Checksum Verification**: Every update downloaded via GitHub is verified against a **SHA-256 hash** before installation.
+- **No Malicious Obfuscation**: While we use R8 for optimization and string shifting for path protection, we do not use obfuscation to hide malicious intent.
+- **Debugger Detection**: Production builds block root operations if a debugger is attached.
 
-## Secrets Handling
-- The repository **never** contains private signing keys (`.jks`), keystore passwords, or authentication tokens.
-- `keystore.properties` and other sensitive files are excluded via `.gitignore`.
-- Build secrets for CI/CD are managed through GitHub Actions Secrets.
+## How to Verify Integrity
+You can verify the authenticity of your APK by checking its SHA-256 hash against the one published in our [Official Releases](https://github.com/bmjubairdadu/DFG-Controller/releases).
 
-## Vulnerability Reporting
-If you discover a security vulnerability within DFG Controller, please do **not** open a public issue. Instead, contact the developer directly or use GitHub's private vulnerability reporting feature if enabled.
-
-## Permission Transparency
-All requested permissions are strictly required for the documented features:
-- `REQUEST_INSTALL_PACKAGES`: Self-update system.
-- `PACKAGE_USAGE_STATS`: Detect game launches.
-- `KILL_BACKGROUND_PROCESSES`: Game Mode performance optimization.
-- `INTERNET`: Update checks.
+## Reporting False Positives
+If you believe Play Protect is blocking DFG Controller incorrectly, you can report it to Google via the [Play Protect Appeals](https://support.google.com/googleplay/android-developer/answer/2992033) page. We provide full source code transparency to facilitate these reviews.

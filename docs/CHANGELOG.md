@@ -2,6 +2,12 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.1.0] - 2026-08-10
+### Added
+- **Animated Splash Screen**: Professional startup transition with smooth logo zoom and fade effects.
+- **Security Documentation**: Detailed disclosure of app permissions and integrity measures.
+- **Explicit Signing**: Configured build system for V2/V3 signature compatibility.
+
 ## [1.0.1] - 2026-08-10
 ### Added
 - **System Packages Viewer**: Detailed inspection of all user and system apps.

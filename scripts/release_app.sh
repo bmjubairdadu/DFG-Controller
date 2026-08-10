@@ -4,6 +4,11 @@
 REPO="bmjubairdadu/DFG-Controller"
 MANIFEST="app_update.json"
 
+# Try to set JAVA_HOME if not set (common in some WSL setups)
+if [ -z "$JAVA_HOME" ]; then
+    export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64" # Common location
+fi
+
 echo "Reading version information..."
 VERSION_CODE=$(grep "versionCode =" app/build.gradle.kts | awk '{print $3}')
 VERSION_NAME=$(grep "versionName =" app/build.gradle.kts | awk -F'"' '{print $2}')
@@ -18,6 +23,7 @@ if gh release view "$TAG" >/dev/null 2>&1; then
 fi
 
 echo "Building release APK..."
+# Use the wrapper. It will handle downloading gradle if needed.
 ./gradlew assembleRelease
 
 # Find APK

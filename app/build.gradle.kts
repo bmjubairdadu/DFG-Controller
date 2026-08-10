@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 android {
@@ -65,6 +66,13 @@ android {
         compose = true
         buildConfig = true
     }
+
+    publishing {
+        singleVariant("debug") {
+            withSourcesJar()
+        }
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -100,4 +108,28 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("debug") {
+                groupId = "com.daisyforgaming"
+                artifactId = "dfg-controller"
+                version = "1.0.1"
+
+                from(components["debug"])
+            }
+        }
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/bmjubairdadu/DFG-Controller")
+                credentials {
+                    username = "bmjubairdadu"
+                    password = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN") ?: ""
+                }
+            }
+        }
+    }
 }

@@ -36,6 +36,16 @@ android {
                 storePassword = props.getProperty("storePassword")
                 keyAlias = props.getProperty("keyAlias")
                 keyPassword = props.getProperty("keyPassword")
+            } else {
+                // Fallback for CI/CD environments
+                val keystoreFilePath = System.getenv("RELEASE_KEYSTORE_PATH") ?: "release.keystore"
+                val keystoreFile = rootProject.file(keystoreFilePath)
+                if (keystoreFile.exists()) {
+                    storeFile = keystoreFile
+                    storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                    keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                    keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+                }
             }
         }
     }

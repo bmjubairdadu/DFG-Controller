@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 3,
-  "latest_version_name": "1.1.0",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.1.0/DFG%20Controller.apk",
-  "sha256": "6e795be2961a7f73670389059bbbb897fe8f67c7ff193ffd883c474ecff46375",
-  "changelog": "Professional animated splash screen and enhanced security transparency.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.1.0",
+  "latest_version_code": 4,
+  "latest_version_name": "1.2.0",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.2.0/DFG%20Controller.apk",
+  "sha256": "PENDING_NEW_BUILD_HASH",
+  "changelog": "New: DPI/Density control slider. New: Smoothness section with Touch Boost (duration control) and Smart Memory Management (Aggressive LMK).",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.2.0",
   "mandatory": false
 }

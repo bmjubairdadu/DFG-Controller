@@ -30,6 +30,10 @@ class SettingsRepository(private val context: Context) {
         val ZRAM_SIZE = stringPreferencesKey("zram_size")
         val CHARGE_PRIORITY = booleanPreferencesKey("charge_priority")
         val TCP_CONGESTION = stringPreferencesKey("tcp_congestion")
+        val DPI_VALUE = intPreferencesKey("dpi_value")
+        val TOUCH_BOOST_ENABLED = booleanPreferencesKey("touch_boost_enabled")
+        val TOUCH_BOOST_DURATION = intPreferencesKey("touch_boost_duration")
+        val LMK_AGGRESSIVE = booleanPreferencesKey("lmk_aggressive")
     }
 
     val cpuGovernor: Flow<String?> = context.dataStore.data.map { it[PreferencesKeys.CPU_GOVERNOR] }
@@ -50,6 +54,10 @@ class SettingsRepository(private val context: Context) {
     val zramSize: Flow<String> = context.dataStore.data.map { it[PreferencesKeys.ZRAM_SIZE] ?: "512M" }
     val chargePriority: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.CHARGE_PRIORITY] ?: false }
     val tcpCongestion: Flow<String> = context.dataStore.data.map { it[PreferencesKeys.TCP_CONGESTION] ?: "cubic" }
+    val dpiValue: Flow<Int?> = context.dataStore.data.map { it[PreferencesKeys.DPI_VALUE] }
+    val touchBoostEnabled: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.TOUCH_BOOST_ENABLED] ?: false }
+    val touchBoostDuration: Flow<Int> = context.dataStore.data.map { it[PreferencesKeys.TOUCH_BOOST_DURATION] ?: 60 }
+    val lmkAggressive: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.LMK_AGGRESSIVE] ?: false }
 
     suspend fun saveCpuGovernor(value: String) {
         context.dataStore.edit { it[PreferencesKeys.CPU_GOVERNOR] = value }
@@ -124,5 +132,25 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun saveTcpCongestion(value: String) {
         context.dataStore.edit { it[PreferencesKeys.TCP_CONGESTION] = value }
+    }
+
+    suspend fun saveDpiValue(value: Int) {
+        context.dataStore.edit { it[PreferencesKeys.DPI_VALUE] = value }
+    }
+
+    suspend fun clearDpiValue() {
+        context.dataStore.edit { it.remove(PreferencesKeys.DPI_VALUE) }
+    }
+
+    suspend fun saveTouchBoostEnabled(value: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.TOUCH_BOOST_ENABLED] = value }
+    }
+
+    suspend fun saveTouchBoostDuration(value: Int) {
+        context.dataStore.edit { it[PreferencesKeys.TOUCH_BOOST_DURATION] = value }
+    }
+
+    suspend fun saveLmkAggressive(value: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.LMK_AGGRESSIVE] = value }
     }
 }

@@ -23,6 +23,9 @@ fun DisplayScreen(viewModel: MainViewModel) {
     val g by viewModel.kcalG.collectAsState()
     val b by viewModel.kcalB.collectAsState()
     val enabled by viewModel.kcalEnabled.collectAsState()
+    val dpiInfo by viewModel.dpiInfo.collectAsState()
+    
+    var customDpi by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = Modifier
@@ -87,8 +90,112 @@ fun DisplayScreen(viewModel: MainViewModel) {
                 onSet = { w, h -> viewModel.setResolution(w, h) }
             )
         }
+
+        item {
+            HorizontalDivider(color = Color.DarkGray, thickness = 1.dp)
+        }
+
+        item {
+            Text(
+                text = "DPI / DENSITY CONTROL",
+                style = MaterialTheme.typography.headlineSmall,
+                color = ElectricCyan
+            )
+        }
+
+        item {
+            DpiControlCard(
+                info = dpiInfo,
+                onReset = { viewModel.resetDpi() },
+                onApply = { viewModel.setDpi(it) }
+            )
+        }
         
         item { Spacer(modifier = Modifier.height(40.dp)) }
+    }
+}
+
+@Composable
+fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
+    var textValue by remember { mutableStateOf("") }
+    // Try to extract current DPI from info string for slider default
+    val currentDpi = remember(info) {
+        info.split("\n")
+            .firstOrNull { it.contains("density") }
+            ?.split(" ")
+            ?.lastOrNull()
+            ?.toIntOrNull() ?: 480
+    }
+    
+    var sliderValue by remember(currentDpi) { mutableFloatStateOf(currentDpi.toFloat()) }
+
+    Card(
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "CURRENT STATUS:", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+            Text(text = info, style = MaterialTheme.typography.bodySmall, color = Color.White)
+            
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "TARGET DPI: ${sliderValue.toInt()}",
+                style = MaterialTheme.typography.labelMedium,
+                color = ElectricCyan
+            )
+            GlowSlider(
+                value = sliderValue,
+                onValueChange = { 
+                    sliderValue = it
+                    textValue = it.toInt().toString()
+                },
+                valueRange = 160f..720f,
+                accentColor = ElectricCyan
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = textValue,
+                    onValueChange = { 
+                        if (it.all { char -> char.isDigit() }) {
+                            textValue = it
+                            it.toIntOrNull()?.let { v -> sliderValue = v.toFloat().coerceIn(160f, 720f) }
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Manual Input") },
+                    placeholder = { Text("e.g. 480") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = ElectricCyan,
+                        unfocusedBorderColor = Color.DarkGray
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Button(
+                    onClick = { 
+                        val target = textValue.toIntOrNull() ?: sliderValue.toInt()
+                        onApply(target)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan, contentColor = Color.Black)
+                ) {
+                    Text("APPLY")
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedButton(
+                onClick = onReset, 
+                modifier = Modifier.fillMaxWidth(),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.DarkGray)
+            ) {
+                Text("RESET TO DEFAULT", color = ElectricCyan)
+            }
+        }
     }
 }
 

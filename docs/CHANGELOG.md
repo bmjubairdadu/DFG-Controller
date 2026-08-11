@@ -2,6 +2,12 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.2.0] - 2026-08-11
+### Added
+- **DPI / Density Control**: Integrated slider and manual input for screen density adjustments.
+- **Smoothness Section**: Added Touch Boost (with duration slider) and Smart Memory Management (Aggressive LMK).
+- **Persistent Settings**: New toggles persist via DataStore and apply on boot.
+
 ## [1.1.0] - 2026-08-10
 ### Added
 - **Animated Splash Screen**: Professional startup transition with smooth logo zoom and fade effects.

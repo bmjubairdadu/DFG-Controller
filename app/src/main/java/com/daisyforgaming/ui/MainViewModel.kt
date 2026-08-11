@@ -110,6 +110,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _availableTcpCongestions = MutableStateFlow<List<String>>(emptyList())
     val availableTcpCongestions: StateFlow<List<String>> = _availableTcpCongestions.asStateFlow()
 
+    private val _dpiInfo = MutableStateFlow("Loading...")
+    val dpiInfo: StateFlow<String> = _dpiInfo.asStateFlow()
+
+    private val _touchBoostEnabled = MutableStateFlow(false)
+    val touchBoostEnabled: StateFlow<Boolean> = _touchBoostEnabled.asStateFlow()
+
+    private val _touchBoostDuration = MutableStateFlow(60)
+    val touchBoostDuration: StateFlow<Int> = _touchBoostDuration.asStateFlow()
+
+    private val _lmkAggressive = MutableStateFlow(false)
+    val lmkAggressive: StateFlow<Boolean> = _lmkAggressive.asStateFlow()
+
     private val _integrityStatus = MutableStateFlow<IntegrityStatus>(IntegrityStatus.CHECKING)
     val integrityStatus: StateFlow<IntegrityStatus> = _integrityStatus.asStateFlow()
 
@@ -205,6 +217,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         viewModelScope.launch {
             repository.tcpCongestion.collect { _tcpCongestion.value = it }
+        }
+        viewModelScope.launch {
+            repository.touchBoostEnabled.collect { _touchBoostEnabled.value = it }
+        }
+        viewModelScope.launch {
+            repository.touchBoostDuration.collect { _touchBoostDuration.value = it }
+        }
+        viewModelScope.launch {
+            repository.lmkAggressive.collect { _lmkAggressive.value = it }
         }
     }
 
@@ -326,6 +347,56 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setDpi(density: Int) {
+        viewModelScope.launch {
+            Shell.cmd("wm density $density").exec()
+            repository.saveDpiValue(density)
+            refreshDpiInfo()
+        }
+    }
+
+    fun resetDpi() {
+        viewModelScope.launch {
+            Shell.cmd("wm density reset").exec()
+            repository.clearDpiValue()
+            refreshDpiInfo()
+        }
+    }
+
+    private fun refreshDpiInfo() {
+        viewModelScope.launch {
+            val result = Shell.cmd("wm density").exec()
+            _dpiInfo.value = if (result.isSuccess) result.out.joinToString("\n") else "Error reading DPI"
+        }
+    }
+
+    fun setTouchBoostEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            if (ShellManager.writeSysfs(SysfsPaths.TOUCH_BOOST_ENABLED, if (enabled) "1" else "0")) {
+                repository.saveTouchBoostEnabled(enabled)
+            }
+        }
+    }
+
+    fun setTouchBoostDuration(durationMs: Int) {
+        viewModelScope.launch {
+            val clamped = durationMs.coerceIn(20, 150)
+            if (ShellManager.writeSysfs(SysfsPaths.TOUCH_BOOST_DURATION, clamped.toString())) {
+                repository.saveTouchBoostDuration(clamped)
+                _touchBoostDuration.value = clamped
+            }
+        }
+    }
+
+    fun setLmkAggressive(enabled: Boolean) {
+        viewModelScope.launch {
+            if (ShellManager.writeSysfs(SysfsPaths.LMK_AGGRESSIVE, if (enabled) "1" else "0")) {
+                repository.saveLmkAggressive(enabled)
+                _lmkAggressive.value = enabled
+            }
+        }
+    }
+
     private fun applySavedProfile() {
         viewModelScope.launch {
             _isApplyingProfile.value = true
@@ -365,6 +436,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _tcpCongestion.value = ShellManager.readSysfs(SysfsPaths.TCP_CONGESTION) ?: "-"
             _availableTcpCongestions.value = ShellManager.readSysfs("/proc/sys/net/ipv4/tcp_available_congestion_control")?.split(" ") ?: listOf("cubic", "reno")
             _dynamicFsync.value = (ShellManager.readSysfs(SysfsPaths.DYNAMIC_FSYNC) ?: "0") == "1"
+            
+            refreshDpiInfo()
+            _touchBoostEnabled.value = (ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_ENABLED) ?: "0") == "1"
+            _touchBoostDuration.value = ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_DURATION)?.toIntOrNull() ?: 60
+            _lmkAggressive.value = (ShellManager.readSysfs(SysfsPaths.LMK_AGGRESSIVE) ?: "0") == "1"
         }
     }
 

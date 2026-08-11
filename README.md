@@ -11,8 +11,9 @@ Built with Jetpack Compose and Material 3, DFG Controller solves the problem of 
 
 ## Features
 
-### 🚀 Performance & Gaming
+### 🚀 Performance & Smoothness
 - **Dashboard HUD**: Real-time tracking of kernel version, CPU governor, and I/O scheduler.
+- **Smoothness Controls**: Animated toggles for **Touch Boost** (with duration slider) and **Smart Memory Management** (Aggressive LMK).
 - **Gaming Mode**: A master switch that instantly applies aggressive background app killing and performance presets.
 - **Games Manager**: Per-app triggers to automatically enable performance tweaks when your favorite games launch.
 
@@ -23,7 +24,7 @@ Built with Jetpack Compose and Material 3, DFG Controller solves the problem of 
 
 ### 📺 Display & UI
 - **KCAL Calibration**: Full RGB control over your panel's color output with live previews.
-- **Resolution Scaling**: Quickly scale between 720p and 1080p to boost FPS in demanding 3D titles.
+- **Resolution & DPI**: Quickly scale between 720p and 1080p, and adjust screen density (DPI) via a responsive slider/input.
 
 ### 🧠 Memory & System
 - **zRAM Control**: Managed compressed swap space with live usage visualization and manual compaction support.

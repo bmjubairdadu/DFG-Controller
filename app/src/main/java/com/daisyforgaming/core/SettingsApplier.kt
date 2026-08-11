@@ -44,5 +44,13 @@ object SettingsApplier {
             ShellManager.writeSysfs(SysfsPaths.ZRAM_DISKSIZE, size)
             com.topjohnwu.superuser.Shell.cmd("mkswap /dev/block/zram0", "swapon /dev/block/zram0").exec()
         }
+
+        repository.dpiValue.first()?.let { dpi ->
+            com.topjohnwu.superuser.Shell.cmd("wm density $dpi").exec()
+        }
+
+        ShellManager.writeSysfs(SysfsPaths.TOUCH_BOOST_ENABLED, if (repository.touchBoostEnabled.first()) "1" else "0")
+        ShellManager.writeSysfs(SysfsPaths.TOUCH_BOOST_DURATION, repository.touchBoostDuration.first().toString())
+        ShellManager.writeSysfs(SysfsPaths.LMK_AGGRESSIVE, if (repository.lmkAggressive.first()) "1" else "0")
     }
 }

@@ -33,5 +33,11 @@ object SysfsPaths {
 
     val GAME_MODE = d("fepn_fnbi/tsfufnbsbq/tfmmsuops_hgf/fmvepon/tzt/")
 
+    // SMOOTHNESS
+    // Paths: /sys/module/input_boost/parameters/enabled, boost_duration_ms, lmk_aggressive
+    val TOUCH_BOOST_ENABLED = d("efmcbof0tsfufnbsbq0utppc`uvqoj0fmvepon0tzt0")
+    val TOUCH_BOOST_DURATION = d("tn`opjubsve`utppc0tsfufnbsbq0utppc`uvqoj0fmvepon0tzt0")
+    val LMK_AGGRESSIVE = d("fwjttfshhb`lmn0tsfufnbsbq0sfmmjlipnfnxpm0fmvepon0tzt0")
+
     val TCP_CONGESTION = d("mpsuops_onjutfhopd_pdu/5vqi/ufo/tzt/qpsd/")
 }

@@ -25,7 +25,6 @@ fun DisplayScreen(viewModel: MainViewModel) {
     val enabled by viewModel.kcalEnabled.collectAsState()
     val dpiInfo by viewModel.dpiInfo.collectAsState()
     
-    var customDpi by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = Modifier

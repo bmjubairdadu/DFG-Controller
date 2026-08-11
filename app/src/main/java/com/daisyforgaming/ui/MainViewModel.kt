@@ -15,6 +15,7 @@ import com.daisyforgaming.core.MemoryMonitor
 import com.daisyforgaming.core.MemoryStats
 import com.topjohnwu.superuser.Shell
 import com.daisyforgaming.core.ShellManager
+import com.daisyforgaming.core.SettingsApplier
 import com.daisyforgaming.core.SysfsPaths
 import com.daisyforgaming.data.SettingsRepository
 import kotlinx.coroutines.delay
@@ -400,7 +401,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun applySavedProfile() {
         viewModelScope.launch {
             _isApplyingProfile.value = true
-            delay(1000) 
+            SettingsApplier.applyAll(getApplication<Application>())
             _isApplyingProfile.value = false
         }
     }

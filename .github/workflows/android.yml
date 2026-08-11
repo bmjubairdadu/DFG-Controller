@@ -61,22 +61,22 @@ jobs:
         # Verify the file is not empty
         if [ ! -s release.keystore ]; then echo "Keystore is empty!"; exit 1; fi
 
-    - name: Build Release APK
-      run: ./gradlew assembleRelease
+    - name: Build Main APK
+      run: ./gradlew assembleDebug
       env:
         RELEASE_KEYSTORE_PATH: "release.keystore"
         RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
         RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
         RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
-    - name: Rename Release APK
-      run: mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/DFG.Controller.apk"
+    - name: Rename APK
+      run: mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/DFG.Controller.apk"
 
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v2
       with:
-        files: app/build/outputs/apk/release/*.apk
+        files: app/build/outputs/apk/debug/*.apk
         draft: false
         prerelease: false
       env:

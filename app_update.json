@@ -2,8 +2,8 @@
   "latest_version_code": 6,
   "latest_version_name": "1.4.0",
   "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.4.0/DFG.Controller.apk",
-  "sha256": "0dc93c478e30dfcb2c9b0c07b1a37ee41f32675d32958d952d8f578c35373b0d",
-  "changelog": "v1.4.0: CI release pipeline repaired with new signing keystore. First properly signed production build.",
+  "sha256": "ec1e4a00c04d0d1f9c5ba5715aa8af3e5426c03b25fe1d2acfd2abd8fb56dbc7",
+  "changelog": "v1.4.0: Release pipeline fixed. Main debug distribution APK published.",
   "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.4.0",
   "mandatory": false
 }

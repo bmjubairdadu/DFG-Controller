@@ -65,17 +65,15 @@ fun GamesScreen(viewModel: MainViewModel, onBack: () -> Unit) {
         containerColor = DarkBackground
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            TabRow(
+            SecondaryTabRow(
                 selectedTabIndex = tabIndex,
                 containerColor = DarkBackground,
                 contentColor = ElectricCyan,
-                indicator = { tabPositions ->
-                    if (tabIndex < tabPositions.size) {
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[tabIndex]),
-                            color = ElectricCyan
-                        )
-                    }
+                indicator = { 
+                    TabRowDefaults.SecondaryIndicator(
+                        Modifier.tabIndicatorOffset(tabIndex),
+                        color = ElectricCyan
+                    )
                 }
             ) {
                 Tab(selected = tabIndex == 0, onClick = { tabIndex = 0 }) {

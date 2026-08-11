@@ -4,11 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -41,7 +43,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Gpu : Screen("gpu", "GPU", Icons.Default.Build)
     object Games : Screen("games", "Games", Icons.Default.PlayArrow)
     object Power : Screen("power", "Power", Icons.Default.Refresh)
-    object AppSelector : Screen("app_selector", "App Selector", Icons.Default.List)
+    object AppSelector : Screen("app_selector", "App Selector", Icons.AutoMirrored.Filled.List)
     object About : Screen("about", "About", Icons.Default.Info)
     object Compatibility : Screen("compatibility", "Compatibility", Icons.Default.CheckCircle)
     object Wakelocks : Screen("wakelocks", "Wakelocks", Icons.Default.BatteryAlert)
@@ -53,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         
         splashScreen.setOnExitAnimationListener { splashScreenView ->

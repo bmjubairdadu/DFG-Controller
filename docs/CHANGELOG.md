@@ -2,6 +2,11 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.3.0] - 2026-08-11
+### Added
+- **Animated Splash Icon**: Integrated `AnimatedVectorDrawable` for the startup splash screen with a professional pulse effect.
+- **Adaptive Launcher Icon**: Switched to modern adaptive icons for better home screen consistency.
+
 ## [1.2.0] - 2026-08-11
 ### Added
 - **DPI / Density Control**: Integrated slider and manual input for screen density adjustments.

@@ -1,0 +1,6 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_launcher_foreground">
+    <target
+        android:name="bugdroid_group"
+        android:animation="@animator/logo_pulse" />
+</animated-vector>

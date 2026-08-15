@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import com.daisyforgaming.ui.MainViewModel
 import com.daisyforgaming.ui.components.AnimatedKernelSwitch
 import com.daisyforgaming.ui.components.DashboardHeroCard
@@ -60,17 +61,40 @@ fun DashboardScreen(viewModel: MainViewModel) {
                     )
                 }
 
-                if (autoFastChargeActive) {
-                    item {
+                item {
+                    var visibleAuto by remember { mutableStateOf(false) }
+                    LaunchedEffect(autoFastChargeActive) {
+                        if (autoFastChargeActive) {
+                            delay(200)
+                            visibleAuto = true
+                        } else {
+                            visibleAuto = false
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = visibleAuto,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
                         AutoFastChargeBadge()
                     }
                 }
 
                 item {
-                    GamingModeCard(
-                        enabled = gamingMode,
-                        onToggle = { viewModel.toggleGamingMode(it) }
-                    )
+                    var visibleGaming by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) {
+                        delay(300)
+                        visibleGaming = true
+                    }
+                    AnimatedVisibility(
+                        visible = visibleGaming,
+                        enter = slideInHorizontally { -it } + fadeIn()
+                    ) {
+                        GamingModeCard(
+                            enabled = gamingMode,
+                            onToggle = { viewModel.toggleGamingMode(it) }
+                        )
+                    }
                 }
                 
                 item { Spacer(modifier = Modifier.height(20.dp)) }

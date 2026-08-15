@@ -61,10 +61,10 @@ class MainActivity : ComponentActivity() {
         splashScreen.setOnExitAnimationListener { splashScreenView ->
             val fadeOut = splashScreenView.view.animate()
                 .alpha(0f)
-                .scaleX(1.2f)
-                .scaleY(1.2f)
-                .setDuration(500L)
-                .setInterpolator(AnticipateInterpolator())
+                .scaleX(0.5f)
+                .scaleY(0.5f)
+                .setDuration(400L)
+                .setInterpolator(android.view.animation.AccelerateInterpolator())
             
             fadeOut.withEndAction {
                 splashScreenView.remove()

@@ -2,6 +2,16 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.6.0] - 2026-08-14
+### Fixed
+- **Root Logic**: Removed debug-time restrictions in `ShellManager` that were preventing features from being toggled even when root was available.
+- **Icon Visibility**: Corrected the adaptive icon foreground for better visibility on dark themes.
+
+### Added
+- **Zoom-Out Startup**: Replaced the pulse animation with a high-end zoom-out/fade transition on app opening.
+- **Staggered UI Transitions**: Added entry animations for dashboard components (Hero Card, Badges, Gaming Mode).
+- **Glow-Themed Logo**: Modernized the application icon with a cyan radial glow effect.
+
 ## [1.5.0] - 2026-08-14
 ### Added
 - **Major Dependency Refresh**: Upgraded all core libraries (Compose, Kotlin, Gradle, Libsu, OkHttp) to latest stable versions for improved performance and security.

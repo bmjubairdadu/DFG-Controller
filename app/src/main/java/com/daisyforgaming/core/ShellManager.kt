@@ -8,15 +8,10 @@ import android.util.Log
 object ShellManager {
 
     suspend fun isRootAvailable(): Boolean = withContext(Dispatchers.IO) {
-        if (SecurityUtils.isDebuggerConnected()) return@withContext false
         Shell.getShell().isRoot
     }
 
     suspend fun writeSysfs(path: String, value: String): Boolean = withContext(Dispatchers.IO) {
-        if (SecurityUtils.isDebuggerConnected()) {
-            Log.e("DFG", "Root write blocked: Debugger detected in release build")
-            return@withContext false
-        }
         try {
             val result = Shell.cmd("echo \"$value\" > $path").exec()
             result.isSuccess
@@ -26,7 +21,6 @@ object ShellManager {
     }
 
     suspend fun readSysfs(path: String): String? = withContext(Dispatchers.IO) {
-        if (SecurityUtils.isDebuggerConnected()) return@withContext null
         try {
             val result = Shell.cmd("cat $path").exec()
             if (result.isSuccess) result.out.firstOrNull() else null

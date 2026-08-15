@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 7,
-  "latest_version_name": "1.5.0",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.5.0/DFG%20Controller.apk",
+  "latest_version_code": 8,
+  "latest_version_name": "1.6.0",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.6.0/DFG%20Controller.apk",
   "sha256": "PENDING_NEW_BUILD_HASH",
-  "changelog": "Major dependency refresh (Compose, Kotlin 2.4, Gradle 9.3) and internal performance optimizations.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.5.0",
+  "changelog": "Fixed: Functionality locks in debug builds. New: Professional zoom-out app opening animation. New: Glow-themed adaptive logo. Upgraded: Animated dashboard with staggered transitions.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.6.0",
   "mandatory": false
 }

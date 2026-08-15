@@ -2,6 +2,11 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.7.3] - 2026-08-14
+### Fixed
+- **API Compatibility**: Upgraded `compileSdk` and `targetSdk` to **37** to match the latest Jetpack Compose requirements and fix CI build failures.
+- **Unrestricted Access**: Double-confirmed removal of all functionality locks for rooted users.
+
 ## [1.7.2] - 2026-08-14
 ### Fixed
 - **DSL Migration**: Migrated `kotlinOptions` to `kotlin { jvmToolchain(17) }` to match AGP 9.3+ and Kotlin 2.4 requirements.

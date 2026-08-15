@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 11,
-  "latest_version_name": "1.7.2",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.2/DFG.Controller.apk",
+  "latest_version_code": 12,
+  "latest_version_name": "1.7.3",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.3/DFG.Controller.apk",
   "sha256": "PENDING_NEW_BUILD_HASH",
-  "changelog": "Fixed: DSL migration for Kotlin 2.4 and AGP 9.3. Fixed: Build script compatibility issues. Improved: CI/CD release workflow.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.2",
+  "changelog": "Fixed: Build compatibility with latest Compose libraries by upgrading to compileSdk 37. Ensured all features are unlocked.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.3",
   "mandatory": false
 }

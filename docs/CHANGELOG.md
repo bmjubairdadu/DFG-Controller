@@ -2,6 +2,11 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.7.2] - 2026-08-14
+### Fixed
+- **DSL Migration**: Migrated `kotlinOptions` to `kotlin { jvmToolchain(17) }` to match AGP 9.3+ and Kotlin 2.4 requirements.
+- **Build Pipeline**: Resolved further script compilation errors in CI.
+
 ## [1.7.1] - 2026-08-14
 ### Fixed
 - **Build System**: Resolved "redundant Kotlin plugin" error in AGP 9.3+ by removing explicit Kotlin Android plugin application.

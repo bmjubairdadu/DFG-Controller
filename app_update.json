@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 10,
-  "latest_version_name": "1.7.1",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.1/DFG.Controller.apk",
+  "latest_version_code": 11,
+  "latest_version_name": "1.7.2",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.2/DFG.Controller.apk",
   "sha256": "PENDING_NEW_BUILD_HASH",
-  "changelog": "Fixed: Build failure due to redundant Kotlin plugin in AGP 9.3. Fixed: Duplicate lint blocks. Improved: Build pipeline stability.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.1",
+  "changelog": "Fixed: DSL migration for Kotlin 2.4 and AGP 9.3. Fixed: Build script compatibility issues. Improved: CI/CD release workflow.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.2",
   "mandatory": false
 }

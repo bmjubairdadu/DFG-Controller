@@ -16,8 +16,8 @@ android {
         applicationId = "com.daisyforgaming"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.7.1"
+        versionCode = 11
+        versionName = "1.7.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -68,8 +68,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+    
+    kotlin {
+        jvmToolchain(17)
     }
     buildFeatures {
         compose = true

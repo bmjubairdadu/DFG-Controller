@@ -2,6 +2,16 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.5.0] - 2026-08-14
+### Added
+- **Major Dependency Refresh**: Upgraded all core libraries (Compose, Kotlin, Gradle, Libsu, OkHttp) to latest stable versions for improved performance and security.
+- **Internal Optimizations**: Refined edge-to-edge implementation and resolved M3 deprecations.
+
+## [1.4.0] - 2026-08-11
+### Added
+- **CI/CD Reliability**: Fixed keystore signing and automated release pipeline.
+- **Material 3 Alignment**: Resolved TabRow and Icon deprecations for Gradle 10 compatibility.
+
 ## [1.3.0] - 2026-08-11
 ### Added
 - **Animated Splash Icon**: Integrated `AnimatedVectorDrawable` for the startup splash screen with a professional pulse effect.

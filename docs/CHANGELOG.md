@@ -2,6 +2,11 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.8.0] - 2026-08-15
+### Changed
+- **Build Strategy**: Removed the production release build type to exclusively offer the full-featured Debug APK, ensuring all kernel tweaks are accessible without signature constraints.
+- **Project Cleanup**: Removed local keystore files and simplified the CI/CD pipeline.
+
 ## [1.7.3] - 2026-08-14
 ### Fixed
 - **API Compatibility**: Upgraded `compileSdk` and `targetSdk` to **37** to match the latest Jetpack Compose requirements and fix CI build failures.

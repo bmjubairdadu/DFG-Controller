@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 12,
-  "latest_version_name": "1.7.3",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.3/DFG.Controller.apk",
+  "latest_version_code": 13,
+  "latest_version_name": "1.8.0",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.8.0/DFG.Controller.apk",
   "sha256": "PENDING_NEW_BUILD_HASH",
-  "changelog": "Fixed: Build compatibility with latest Compose libraries by upgrading to compileSdk 37. Ensured all features are unlocked.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.3",
+  "changelog": "Optimized project structure by removing redundant production build type. Now exclusively providing the full-featured Debug APK for all users. Simplified CI/CD pipeline.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.8.0",
   "mandatory": false
 }

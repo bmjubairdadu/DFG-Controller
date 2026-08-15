@@ -1,5 +1,3 @@
-import java.util.Properties
-import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
@@ -16,8 +14,8 @@ android {
         applicationId = "com.daisyforgaming"
         minSdk = 26
         targetSdk = 37
-        versionCode = 12
-        versionName = "1.7.3"
+        versionCode = 13
+        versionName = "1.8.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -25,40 +23,8 @@ android {
         }
     }
 
-    signingConfigs {
-        create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
-            if (keystorePropertiesFile.exists()) {
-                val props = Properties()
-                props.load(FileInputStream(keystorePropertiesFile))
-                storeFile = rootProject.file(props.getProperty("storeFile"))
-                storePassword = props.getProperty("storePassword")
-                keyAlias = props.getProperty("keyAlias")
-                keyPassword = props.getProperty("keyPassword")
-            } else {
-                // Fallback for CI/CD environments
-                val keystoreFilePath = System.getenv("RELEASE_KEYSTORE_PATH") ?: "release.keystore"
-                val keystoreFile = rootProject.file(keystoreFilePath)
-                if (keystoreFile.exists()) {
-                    storeFile = keystoreFile
-                    storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
-                    keyAlias = System.getenv("RELEASE_KEY_ALIAS")
-                    keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
-                }
-            }
-        }
-    }
 
     buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            signingConfig = signingConfigs.getByName("release")
-        }
         debug {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"

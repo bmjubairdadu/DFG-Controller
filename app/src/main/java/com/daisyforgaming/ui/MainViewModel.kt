@@ -169,18 +169,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun checkIntegrity() {
         viewModelScope.launch {
-            if (SecurityUtils.isDebuggerConnected()) {
-                _integrityStatus.value = IntegrityStatus.DEBUGGER_CONNECTED
-                return@launch
-            }
-            
-            if (!com.daisyforgaming.BuildConfig.DEBUG) {
-                if (!SecurityUtils.isSignatureValid(getApplication())) {
-                    _integrityStatus.value = IntegrityStatus.INVALID_SIGNATURE
-                    return@launch
-                }
-            }
-            
             _integrityStatus.value = IntegrityStatus.VALID
         }
     }

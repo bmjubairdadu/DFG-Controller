@@ -2,6 +2,15 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.7.0] - 2026-08-14
+### Fixed
+- **App Locks**: Completely removed all integrity and debugger-linked restrictions. All features are now permanently enabled for rooted users.
+- **Workflow**: Fixed GitHub release pipeline to correctly post and attach signed APKs.
+
+### Added
+- **Rotating Pulse Animation**: Enhanced the splash transition with a dynamic scaling/rotation effect for a high-end feel.
+- **Dual Build Releases**: GitHub releases now include both `Debug` and `Production` versions of the APK.
+
 ## [1.6.0] - 2026-08-14
 ### Fixed
 - **Root Logic**: Removed debug-time restrictions in `ShellManager` that were preventing features from being toggled even when root was available.

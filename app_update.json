@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 8,
-  "latest_version_name": "1.6.0",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.6.0/DFG%20Controller.apk",
+  "latest_version_code": 9,
+  "latest_version_name": "1.7.0",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.0/DFG.Controller.apk",
   "sha256": "PENDING_NEW_BUILD_HASH",
-  "changelog": "Fixed: Functionality locks in debug builds. New: Professional zoom-out app opening animation. New: Glow-themed adaptive logo. Upgraded: Animated dashboard with staggered transitions.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.6.0",
+  "changelog": "Fixed: Functionality locks completely removed. New: High-end rotating pulse app opening animation. New: Improved UI with staggered animations. Upgraded: Release workflow now includes both Debug and Production APKs.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.0",
   "mandatory": false
 }

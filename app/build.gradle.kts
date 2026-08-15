@@ -3,7 +3,6 @@ import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     id("maven-publish")
@@ -17,8 +16,8 @@ android {
         applicationId = "com.daisyforgaming"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.7.0"
+        versionCode = 10
+        versionName = "1.7.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -88,11 +87,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    lint {
-        checkReleaseBuilds = false
-        abortOnError = false
-    }
-
     lint {
         checkReleaseBuilds = false
         abortOnError = false

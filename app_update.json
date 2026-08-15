@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 9,
-  "latest_version_name": "1.7.0",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.0/DFG.Controller.apk",
+  "latest_version_code": 10,
+  "latest_version_name": "1.7.1",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.7.1/DFG.Controller.apk",
   "sha256": "PENDING_NEW_BUILD_HASH",
-  "changelog": "Fixed: Functionality locks completely removed. New: High-end rotating pulse app opening animation. New: Improved UI with staggered animations. Upgraded: Release workflow now includes both Debug and Production APKs.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.0",
+  "changelog": "Fixed: Build failure due to redundant Kotlin plugin in AGP 9.3. Fixed: Duplicate lint blocks. Improved: Build pipeline stability.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.7.1",
   "mandatory": false
 }

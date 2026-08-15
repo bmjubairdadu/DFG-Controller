@@ -2,6 +2,11 @@
 
 All notable changes to DFG Controller will be documented in this file.
 
+## [1.7.1] - 2026-08-14
+### Fixed
+- **Build System**: Resolved "redundant Kotlin plugin" error in AGP 9.3+ by removing explicit Kotlin Android plugin application.
+- **Gradle Cleanup**: Removed duplicate lint configurations and optimized build script.
+
 ## [1.7.0] - 2026-08-14
 ### Fixed
 - **App Locks**: Completely removed all integrity and debugger-linked restrictions. All features are now permanently enabled for rooted users.

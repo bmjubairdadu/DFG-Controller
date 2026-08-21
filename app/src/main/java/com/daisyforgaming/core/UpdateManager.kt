@@ -97,11 +97,17 @@ object UpdateManager {
 
     private fun verifyChecksum(file: File, expectedSha256: String): Boolean {
         if (!file.exists()) return false
-        if ((expectedSha256 == "PENDING_NEW_BUILD_HASH") || expectedSha256.isBlank()) return true
+        if (expectedSha256 == "SKIP" || expectedSha256.isBlank()) return true
         return try {
             val digest = MessageDigest.getInstance("SHA-256")
-            val bytes = file.readBytes()
-            val hash = digest.digest(bytes).joinToString("") { "%02x".format(it) }
+            val buffer = ByteArray(8192)
+            file.inputStream().use { input ->
+                var read: Int
+                while (input.read(buffer).also { read = it } != -1) {
+                    digest.update(buffer, 0, read)
+                }
+            }
+            val hash = digest.digest().joinToString("") { "%02x".format(it) }
             hash.equals(expectedSha256, ignoreCase = true)
         } catch (e: Exception) {
             false

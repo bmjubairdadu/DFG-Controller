@@ -12,16 +12,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.daisyforgaming.R
+import com.daisyforgaming.BuildConfig
 import com.daisyforgaming.ui.theme.ElectricCyan
 
 @Composable
-fun AboutScreen(onNavigateToCompatibility: () -> Unit, onNavigateToPackages: () -> Unit) {
+fun AboutScreen(
+    onNavigateToCompatibility: () -> Unit, 
+    onNavigateToPackages: () -> Unit,
+    onNavigateToLogs: () -> Unit,
+    onNavigateToHelp: () -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         item {
             Image(
@@ -37,7 +42,7 @@ fun AboutScreen(onNavigateToCompatibility: () -> Unit, onNavigateToPackages: () 
                 fontFamily = com.daisyforgaming.ui.theme.OrbitronFamily
             )
             Text(
-                text = "Version 1.0.0 (DaisyForGaming)",
+                text = "Version ${BuildConfig.VERSION_NAME} (DaisyForGaming)",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
@@ -60,6 +65,26 @@ fun AboutScreen(onNavigateToCompatibility: () -> Unit, onNavigateToPackages: () 
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("SYSTEM PACKAGES", color = ElectricCyan)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = onNavigateToLogs,
+                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("KERNEL LOGS", color = ElectricCyan)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = onNavigateToHelp,
+                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("GET HELP & DOCUMENTATION", color = ElectricCyan)
             }
             
             Spacer(modifier = Modifier.height(48.dp))

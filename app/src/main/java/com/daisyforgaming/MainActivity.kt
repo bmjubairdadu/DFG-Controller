@@ -2,7 +2,6 @@ package com.daisyforgaming
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.animation.AnticipateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
@@ -12,11 +11,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +49,8 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Compatibility : Screen("compatibility", "Compatibility", Icons.Default.CheckCircle)
     object Wakelocks : Screen("wakelocks", "Wakelocks", Icons.Default.BatteryAlert)
     object Packages : Screen("packages", "Packages", Icons.AutoMirrored.Filled.ListAlt)
+    object Logs : Screen("logs", "Logs", Icons.AutoMirrored.Filled.List)
+    object Help : Screen("help", "Help", Icons.AutoMirrored.Filled.Help)
 }
 
 class MainActivity : ComponentActivity() {
@@ -59,18 +62,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         splashScreen.setOnExitAnimationListener { splashScreenView ->
-            val fadeOut = splashScreenView.view.animate()
-                .alpha(0f)
-                .scaleX(0.5f)
-                .scaleY(0.5f)
-                .setDuration(400L)
-                .setInterpolator(android.view.animation.AccelerateInterpolator())
+            val iconView = splashScreenView.iconView
             
-            fadeOut.withEndAction {
-                splashScreenView.remove()
-            }
-            
-            fadeOut.start()
+            // Premium scale and rotation animation
+            iconView.animate()
+                .scaleX(0f)
+                .scaleY(0f)
+                .rotation(360f)
+                .setDuration(600L)
+                .setInterpolator(android.view.animation.AnticipateInterpolator())
+                .withEndAction {
+                    splashScreenView.remove()
+                }
+                .start()
         }
 
         observeServiceState()
@@ -81,7 +85,7 @@ class MainActivity : ComponentActivity() {
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = DarkBackground
+                    color = DarkBackground,
                 ) {
                     when (integrityStatus) {
                         MainViewModel.IntegrityStatus.CHECKING -> { /* Loading */ }
@@ -89,7 +93,11 @@ class MainActivity : ComponentActivity() {
                             val isRootAvailable by viewModel.isRootAvailable.collectAsState()
                             when (isRootAvailable) {
                                 null -> { /* Loading state */ }
-                                false -> RootRequiredScreen(onRetry = { viewModel.retryRoot() })
+                                false -> {
+                                    // Show warning but allow proceeding for read-only mode
+                                    MainScaffold(viewModel)
+                                    // Optionally overlay a root warning or show it in dashboard
+                                }
                                 true -> MainScaffold(viewModel)
                             }
                         }
@@ -108,14 +116,12 @@ class MainActivity : ComponentActivity() {
             }.collect { (bypassEnabled, gamesModeActive) ->
                 val bypassIntent = Intent(this@MainActivity, BypassChargingService::class.java)
                 if (bypassEnabled) {
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) startForegroundService(bypassIntent)
-                    else startService(bypassIntent)
+                    startForegroundService(bypassIntent)
                 } else stopService(bypassIntent)
 
                 val gameIntent = Intent(this@MainActivity, GameModeService::class.java)
                 if (gamesModeActive) {
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) startForegroundService(gameIntent)
-                    else startService(gameIntent)
+                    startForegroundService(gameIntent)
                 } else stopService(gameIntent)
             }
         }
@@ -156,6 +162,16 @@ fun MainScaffold(viewModel: MainViewModel) {
             
             if (isMainScreen) {
                 TopAppBar(
+                    navigationIcon = {
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = R.drawable.app_logo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(start = 12.dp, end = 8.dp)
+                                .size(32.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                        )
+                    },
                     title = { 
                         Text(
                             "DFG CONTROLLER", 
@@ -176,9 +192,9 @@ fun MainScaffold(viewModel: MainViewModel) {
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val showBottomBar = currentDestination?.route != Screen.AppSelector.route && 
+            val showBottomBar = (currentDestination?.route != Screen.AppSelector.route && 
                                currentDestination?.route != Screen.About.route &&
-                               currentDestination?.route != Screen.Compatibility.route
+                               currentDestination?.route != Screen.Compatibility.route)
 
             if (showBottomBar) {
                 NavigationBar(
@@ -244,7 +260,9 @@ fun MainScaffold(viewModel: MainViewModel) {
             composable(Screen.About.route) {
                 AboutScreen(
                     onNavigateToCompatibility = { navController.navigate(Screen.Compatibility.route) },
-                    onNavigateToPackages = { navController.navigate(Screen.Packages.route) }
+                    onNavigateToPackages = { navController.navigate(Screen.Packages.route) },
+                    onNavigateToLogs = { navController.navigate(Screen.Logs.route) },
+                    onNavigateToHelp = { navController.navigate(Screen.Help.route) }
                 )
             }
             composable(Screen.Compatibility.route) {
@@ -255,6 +273,12 @@ fun MainScaffold(viewModel: MainViewModel) {
             }
             composable(Screen.Packages.route) {
                 PackagesScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Logs.route) {
+                LogsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Help.route) {
+                HelpScreen(onBack = { navController.popBackStack() })
             }
         }
     }

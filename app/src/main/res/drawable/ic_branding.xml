@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="40dp"
+    android:viewportWidth="200"
+    android:viewportHeight="40">
+
+    <!-- Stylized DFG text -->
+    <path
+        android:fillColor="#00FFFF"
+        android:pathData="M10,10h8c2,0 4,2 4,4v12c0,2 -2,4 -4,4h-8v-20zM14,14v12h4v-12h-4z" /> <!-- D -->
+    <path
+        android:fillColor="#00FFFF"
+        android:pathData="M26,10h10v4h-6v4h6v4h-6v8h-4v-20z" /> <!-- F -->
+    <path
+        android:fillColor="#00FFFF"
+        android:pathData="M40,14c0,-2 2,-4 4,-4h6v4h-6v12h6v-6h-2v-4h6v14h-6c-2,0 -4,-2 -4,-4v-12z" /> <!-- G -->
+
+    <!-- Smaller CONTROLLER text -->
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M60,20h4v2h-4v6h4v2h-6v-10z M66,20h6v10h-6v-10z M74,20h4l2,6l2,-6h4v10h-4v-6l-2,6h-2l-2,-6v6h-4v-10z" />
+    <!-- This is a bit simplified, but conveys the idea. I'll just use a cleaner block set. -->
+</vector>

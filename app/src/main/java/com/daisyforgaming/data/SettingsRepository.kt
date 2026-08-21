@@ -34,6 +34,7 @@ class SettingsRepository(private val context: Context) {
         val TOUCH_BOOST_ENABLED = booleanPreferencesKey("touch_boost_enabled")
         val TOUCH_BOOST_DURATION = intPreferencesKey("touch_boost_duration")
         val LMK_AGGRESSIVE = booleanPreferencesKey("lmk_aggressive")
+        val CURRENT_PROFILE = stringPreferencesKey("current_profile")
     }
 
     val cpuGovernor: Flow<String?> = context.dataStore.data.map { it[PreferencesKeys.CPU_GOVERNOR] }
@@ -58,6 +59,7 @@ class SettingsRepository(private val context: Context) {
     val touchBoostEnabled: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.TOUCH_BOOST_ENABLED] ?: false }
     val touchBoostDuration: Flow<Int> = context.dataStore.data.map { it[PreferencesKeys.TOUCH_BOOST_DURATION] ?: 60 }
     val lmkAggressive: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.LMK_AGGRESSIVE] ?: false }
+    val currentProfile: Flow<String> = context.dataStore.data.map { it[PreferencesKeys.CURRENT_PROFILE] ?: "Balanced" }
 
     suspend fun saveCpuGovernor(value: String) {
         context.dataStore.edit { it[PreferencesKeys.CPU_GOVERNOR] = value }
@@ -152,5 +154,9 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun saveLmkAggressive(value: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.LMK_AGGRESSIVE] = value }
+    }
+
+    suspend fun saveCurrentProfile(value: String) {
+        context.dataStore.edit { it[PreferencesKeys.CURRENT_PROFILE] = value }
     }
 }

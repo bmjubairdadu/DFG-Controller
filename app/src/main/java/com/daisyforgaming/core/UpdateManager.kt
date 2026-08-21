@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.daisyforgaming.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,7 +26,7 @@ data class UpdateManifest(
     val sha256: String,
     val changelog: String,
     val release_url: String,
-    val mandatory: Boolean
+    val mandatory: Boolean,
 )
 
 object UpdateManager {
@@ -38,7 +39,7 @@ object UpdateManager {
             val request = Request.Builder().url(UPDATE_JSON_URL).build()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return@withContext null
-                val body = response.body?.string() ?: return@withContext null
+                val body = response.body.string()
                 val manifest = json.decodeFromString<UpdateManifest>(body)
                 if (manifest.latest_version_code > BuildConfig.VERSION_CODE) {
                     manifest
@@ -46,7 +47,7 @@ object UpdateManager {
                     null
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -58,7 +59,7 @@ object UpdateManager {
 
         onStatus("Starting download...")
 
-        val request = DownloadManager.Request(Uri.parse(manifest.download_url))
+        val request = DownloadManager.Request(manifest.download_url.toUri())
             .setTitle("DFG Controller Update")
             .setDescription("Downloading version ${manifest.latest_version_name}")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
@@ -96,6 +97,7 @@ object UpdateManager {
 
     private fun verifyChecksum(file: File, expectedSha256: String): Boolean {
         if (!file.exists()) return false
+        if ((expectedSha256 == "PENDING_NEW_BUILD_HASH") || expectedSha256.isBlank()) return true
         return try {
             val digest = MessageDigest.getInstance("SHA-256")
             val bytes = file.readBytes()

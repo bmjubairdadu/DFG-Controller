@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import com.daisyforgaming.ui.models.AppInfo
 import androidx.lifecycle.AndroidViewModel
-import com.daisyforgaming.core.SecurityUtils
 import com.daisyforgaming.core.UpdateManager
 import com.daisyforgaming.core.UpdateManifest
 import androidx.lifecycle.viewModelScope
@@ -19,6 +18,7 @@ import com.daisyforgaming.core.SettingsApplier
 import com.daisyforgaming.core.SysfsPaths
 import com.daisyforgaming.data.SettingsRepository
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,8 +36,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentGovernor = MutableStateFlow("-")
     val currentGovernor: StateFlow<String> = _currentGovernor.asStateFlow()
 
+    private val _currentCpuMinFreq = MutableStateFlow("-")
+    val currentCpuMinFreq: StateFlow<String> = _currentCpuMinFreq.asStateFlow()
+
+    private val _currentCpuMaxFreq = MutableStateFlow("-")
+    val currentCpuMaxFreq: StateFlow<String> = _currentCpuMaxFreq.asStateFlow()
+
     private val _availableGovernors = MutableStateFlow<List<String>>(emptyList())
     val availableGovernors: StateFlow<List<String>> = _availableGovernors.asStateFlow()
+
+    private val _availableFrequencies = MutableStateFlow<List<String>>(emptyList())
+    val availableFrequencies: StateFlow<List<String>> = _availableFrequencies.asStateFlow()
 
     private val _currentScheduler = MutableStateFlow("-")
     val currentScheduler: StateFlow<String> = _currentScheduler.asStateFlow()
@@ -122,6 +131,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _lmkAggressive = MutableStateFlow(false)
     val lmkAggressive: StateFlow<Boolean> = _lmkAggressive.asStateFlow()
+
+    private val _thermalTemperature = MutableStateFlow("-")
+    val thermalTemperature: StateFlow<String> = _thermalTemperature.asStateFlow()
+
+    private val _isThermalCritical = MutableStateFlow(false)
+    val isThermalCritical: StateFlow<Boolean> = _isThermalCritical.asStateFlow()
+
+    private val _kernelLogs = MutableStateFlow<List<String>>(emptyList())
+    val kernelLogs: StateFlow<List<String>> = _kernelLogs.asStateFlow()
+
+    private val _currentProfileName = MutableStateFlow("Balanced")
+    val currentProfileName: StateFlow<String> = _currentProfileName.asStateFlow()
+
+    private val sysfsManager: com.daisyforgaming.core.SysfsManager = com.daisyforgaming.core.RootSysfsManager()
+
+    private val profileManager = com.daisyforgaming.core.ProfileManager(sysfsManager)
 
     private val _integrityStatus = MutableStateFlow<IntegrityStatus>(IntegrityStatus.CHECKING)
     val integrityStatus: StateFlow<IntegrityStatus> = _integrityStatus.asStateFlow()
@@ -223,7 +248,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             while (true) {
                 _memoryStats.value = MemoryMonitor.getStats()
                 _autoFastChargeActive.value = (ShellManager.readSysfs(SysfsPaths.AUTO_FAST_CHARGE_STATUS) ?: "0") == "1"
-                delay(3000)
+                
+                val temp = ShellManager.readSysfs(SysfsPaths.THERMAL_STATUS) ?: "0"
+                _thermalTemperature.value = "$temp°C"
+                val tempInt = temp.toIntOrNull() ?: 0
+                _isThermalCritical.value = tempInt > 60 // Threshold for Daisy
+
+                delay(3.seconds)
             }
         }
     }
@@ -251,15 +282,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _isAppListLoading.value = true
             val pm = getApplication<Application>().packageManager
             val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-            val filteredApps = apps.filter { 
-                _showSystemApps.value || (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 
+            val filteredApps = apps.asSequence().filter { 
+                (_showSystemApps.value || (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0)
             }.map { app ->
                 AppInfo(
                     name = app.loadLabel(pm).toString(),
                     packageName = app.packageName,
-                    icon = app.loadIcon(pm)
+                    icon = app.loadIcon(pm),
                 )
-            }.sortedBy { it.name }
+            }.sortedBy { it.name }.toList()
             _installedApps.value = filteredApps
             _isAppListLoading.value = false
         }
@@ -326,7 +357,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setResolution(width: Int, height: Int) {
         viewModelScope.launch {
-            Shell.cmd("wm size ${width}x${height}").exec()
+            Shell.cmd("wm size ${width}x$height").exec()
         }
     }
 
@@ -389,7 +420,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun applySavedProfile() {
         viewModelScope.launch {
             _isApplyingProfile.value = true
-            SettingsApplier.applyAll(getApplication<Application>())
+            SettingsApplier.applyAll(getApplication())
             _isApplyingProfile.value = false
         }
     }
@@ -407,8 +438,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadInitialData() {
         viewModelScope.launch {
             _kernelVersion.value = ShellManager.readSysfs(SysfsPaths.PROC_VERSION) ?: "Unknown"
-            _currentGovernor.value = ShellManager.readSysfs(String.format(SysfsPaths.CPU_GOVERNOR_ALL, 0)) ?: "-"
+            _currentGovernor.value = ShellManager.readSysfs(SysfsPaths.CPU_GOVERNOR) ?: "-"
             _availableGovernors.value = ShellManager.readSysfs(SysfsPaths.CPU_GOVERNOR_AVAILABLE)?.split(" ") ?: emptyList()
+            
+            _currentCpuMinFreq.value = ShellManager.readSysfs(SysfsPaths.CPU_MIN_FREQ) ?: "-"
+            _currentCpuMaxFreq.value = ShellManager.readSysfs(SysfsPaths.CPU_MAX_FREQ) ?: "-"
+            _availableFrequencies.value = ShellManager.readSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies")?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+
             _currentScheduler.value = parseScheduler(ShellManager.readSysfs(SysfsPaths.IO_SCHEDULER))
             
             val kcal = ShellManager.readSysfs(SysfsPaths.KCAL_CTRL) ?: "256 256 256"
@@ -497,9 +533,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun parseScheduler(raw: String?): String {
         if (raw == null) return "-"
-        val regex = "\\[(.+)\\]".toRegex()
+        val regex = "\\[(.+)]".toRegex()
         val match = regex.find(raw)
         return match?.groupValues?.get(1) ?: raw.split(" ").firstOrNull() ?: "-"
+    }
+
+    fun setCpuMinFreq(freq: String) {
+        viewModelScope.launch {
+            if (ShellManager.writeSysfs(SysfsPaths.CPU_MIN_FREQ, freq)) {
+                _currentCpuMinFreq.value = freq
+            }
+        }
+    }
+
+    fun setCpuMaxFreq(freq: String) {
+        viewModelScope.launch {
+            if (ShellManager.writeSysfs(SysfsPaths.CPU_MAX_FREQ, freq)) {
+                _currentCpuMaxFreq.value = freq
+            }
+        }
     }
 
     fun setGovernor(gov: String) {
@@ -524,6 +576,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _currentScheduler.value = sched
                 repository.saveIoScheduler(sched)
             }
+        }
+    }
+
+    fun refreshKernelLogs() {
+        viewModelScope.launch {
+            _kernelLogs.value = com.daisyforgaming.core.LogManager.getKernelLogs()
+        }
+    }
+
+    fun exportLogs(context: Context, onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+            val path = com.daisyforgaming.core.LogManager.exportLogs(context)
+            onResult(path)
+        }
+    }
+
+    fun setKernelProfile(profile: com.daisyforgaming.ui.models.KernelProfile) {
+        if (_isThermalCritical.value && profile.name == "Performance") {
+            // Block performance profile if overheating
+            return
+        }
+        viewModelScope.launch {
+            _isApplyingProfile.value = true
+            if (profileManager.applyProfile(profile)) {
+                _currentProfileName.value = profile.name
+                _currentGovernor.value = profile.governor ?: _currentGovernor.value
+                _currentScheduler.value = profile.ioScheduler ?: _currentScheduler.value
+                repository.saveCurrentProfile(profile.name)
+                repository.saveCpuGovernor(profile.governor ?: "")
+                repository.saveIoScheduler(profile.ioScheduler ?: "")
+            }
+            _isApplyingProfile.value = false
         }
     }
 

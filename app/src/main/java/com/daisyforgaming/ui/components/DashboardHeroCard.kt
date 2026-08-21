@@ -27,12 +27,14 @@ fun DashboardHeroCard(
     kernelVersion: String,
     currentGovernor: String,
     currentScheduler: String,
+    thermalTemp: String,
+    isThermalCritical: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(240.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(
                 Brush.verticalGradient(
@@ -60,6 +62,12 @@ fun DashboardHeroCard(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     InfoColumn(label = "GOVERNOR", value = currentGovernor, modifier = Modifier.weight(1f))
                     InfoColumn(label = "SCHEDULER", value = currentScheduler, modifier = Modifier.weight(1f))
+                    InfoColumn(
+                        label = "THERMAL",
+                        value = thermalTemp,
+                        modifier = Modifier.weight(1f),
+                        valueColor = if (isThermalCritical) com.daisyforgaming.ui.theme.ErrorRed else ElectricCyan
+                    )
                 }
             }
             
@@ -77,7 +85,12 @@ fun DashboardHeroCard(
 }
 
 @Composable
-fun InfoColumn(label: String, value: String, modifier: Modifier = Modifier) {
+fun InfoColumn(
+    label: String, 
+    value: String, 
+    modifier: Modifier = Modifier,
+    valueColor: Color = ElectricCyan
+) {
     Column(modifier = modifier) {
         Text(
             text = label,
@@ -94,7 +107,7 @@ fun InfoColumn(label: String, value: String, modifier: Modifier = Modifier) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.headlineMedium,
-                color = ElectricCyan
+                color = valueColor
             )
         }
     }

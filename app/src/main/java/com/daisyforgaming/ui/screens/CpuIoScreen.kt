@@ -28,6 +28,10 @@ fun CpuIoScreen(viewModel: MainViewModel) {
     val availableGovernors by viewModel.availableGovernors.collectAsState()
     val currentScheduler by viewModel.currentScheduler.collectAsState()
     
+    val currentCpuMinFreq by viewModel.currentCpuMinFreq.collectAsState()
+    val currentCpuMaxFreq by viewModel.currentCpuMaxFreq.collectAsState()
+    val availableFrequencies by viewModel.availableFrequencies.collectAsState()
+    
     val touchBoostEnabled by viewModel.touchBoostEnabled.collectAsState()
     val touchBoostDuration by viewModel.touchBoostDuration.collectAsState()
     val lmkAggressive by viewModel.lmkAggressive.collectAsState()
@@ -45,6 +49,30 @@ fun CpuIoScreen(viewModel: MainViewModel) {
     ) {
         item { Spacer(modifier = Modifier.height(20.dp)) }
         
+        item {
+            Text(
+                text = "CPU FREQUENCIES",
+                style = MaterialTheme.typography.headlineSmall,
+                color = ElectricCyan
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                FrequencySlider(
+                    label = "Minimum Frequency",
+                    currentFreq = currentCpuMinFreq,
+                    availableFrequencies = availableFrequencies,
+                    onFreqSelected = { viewModel.setCpuMinFreq(it) }
+                )
+                FrequencySlider(
+                    label = "Maximum Frequency",
+                    currentFreq = currentCpuMaxFreq,
+                    availableFrequencies = availableFrequencies,
+                    onFreqSelected = { viewModel.setCpuMaxFreq(it) }
+                )
+            }
+        }
+
         item {
             Text(
                 text = "CPU GOVERNOR",
@@ -152,6 +180,41 @@ fun CpuIoScreen(viewModel: MainViewModel) {
         }
         
         item { Spacer(modifier = Modifier.height(40.dp)) }
+    }
+}
+
+@Composable
+fun FrequencySlider(
+    label: String,
+    currentFreq: String,
+    availableFrequencies: List<String>,
+    onFreqSelected: (String) -> Unit
+) {
+    val currentIndex = availableFrequencies.indexOf(currentFreq).coerceAtLeast(0)
+    
+    Card(
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = label, style = MaterialTheme.typography.titleMedium, color = Color.White)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = if (currentFreq == "-") "N/A" else "${currentFreq.toLongOrNull()?.let { it / 1000 } ?: currentFreq} MHz",
+                style = MaterialTheme.typography.labelSmall,
+                color = ElectricCyan
+            )
+            if (availableFrequencies.isNotEmpty()) {
+                GlowSlider(
+                    value = currentIndex.toFloat(),
+                    onValueChange = { index ->
+                        onFreqSelected(availableFrequencies[index.toInt().coerceIn(0, availableFrequencies.size - 1)])
+                    },
+                    valueRange = 0f..(availableFrequencies.size - 1).toFloat(),
+                    accentColor = ElectricCyan
+                )
+            }
+        }
     }
 }
 

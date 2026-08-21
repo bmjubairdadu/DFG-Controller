@@ -40,4 +40,12 @@ object SysfsPaths {
     val LMK_AGGRESSIVE = d("fwjttfshhb`lmn0tsfufnbsbq0sfmmjlipnfnxpm0fmvepon0tzt0")
 
     val TCP_CONGESTION = d("mpsuops_onjutfhopd_pdu/5vqi/ufo/tzt/qpsd/")
+
+    // DFG Specific
+    const val DFG_BASE = "/sys/devices/platform/dfg/"
+    const val CPU_MIN_FREQ = "${DFG_BASE}cpu_min_freq"
+    const val CPU_MAX_FREQ = "${DFG_BASE}cpu_max_freq"
+    const val CPU_GOVERNOR = "${DFG_BASE}governor"
+    const val THERMAL_STATUS = "${DFG_BASE}thermal_status"
+    const val BOOST_MS = "${DFG_BASE}boost_ms"
 }

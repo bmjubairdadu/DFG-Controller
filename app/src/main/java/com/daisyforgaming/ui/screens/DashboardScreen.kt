@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 import com.daisyforgaming.ui.MainViewModel
 import com.daisyforgaming.ui.components.AnimatedKernelSwitch
 import com.daisyforgaming.ui.components.DashboardHeroCard
@@ -29,7 +30,10 @@ fun DashboardScreen(viewModel: MainViewModel) {
     val currentScheduler by viewModel.currentScheduler.collectAsState()
     val gamingMode by viewModel.gamingMode.collectAsState()
     val isApplyingProfile by viewModel.isApplyingProfile.collectAsState()
+    val thermalTemperature by viewModel.thermalTemperature.collectAsState()
+    val isThermalCritical by viewModel.isThermalCritical.collectAsState()
     val autoFastChargeActive by viewModel.autoFastChargeActive.collectAsState()
+    val currentProfileName by viewModel.currentProfileName.collectAsState()
     val updateManifest by viewModel.updateManifest.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
 
@@ -43,13 +47,13 @@ fun DashboardScreen(viewModel: MainViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = visible,
-            enter = fadeIn() + slideInVertically { 20 }
+            enter = fadeIn() + slideInVertically { 20 },
         ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { Spacer(modifier = Modifier.height(20.dp)) }
                 
@@ -57,18 +61,27 @@ fun DashboardScreen(viewModel: MainViewModel) {
                     DashboardHeroCard(
                         kernelVersion = kernelVersion,
                         currentGovernor = currentGovernor,
-                        currentScheduler = currentScheduler
+                        currentScheduler = currentScheduler,
+                        thermalTemp = thermalTemperature,
+                        isThermalCritical = isThermalCritical
+                    )
+                }
+
+                item {
+                    com.daisyforgaming.ui.components.ProfileSelector(
+                        currentProfile = currentProfileName,
+                        onProfileSelected = viewModel::setKernelProfile
                     )
                 }
 
                 item {
                     var visibleAuto by remember { mutableStateOf(false) }
                     LaunchedEffect(autoFastChargeActive) {
-                        if (autoFastChargeActive) {
-                            delay(200)
-                            visibleAuto = true
+                        visibleAuto = if (autoFastChargeActive) {
+                            delay(200.milliseconds)
+                            true
                         } else {
-                            visibleAuto = false
+                            false
                         }
                     }
                     AnimatedVisibility(
@@ -90,10 +103,10 @@ fun DashboardScreen(viewModel: MainViewModel) {
                         visible = visibleGaming,
                         enter = slideInHorizontally { -it } + fadeIn()
                     ) {
-                        GamingModeCard(
-                            enabled = gamingMode,
-                            onToggle = { viewModel.toggleGamingMode(it) }
-                        )
+                    GamingModeCard(
+                        enabled = gamingMode,
+                        onToggle = viewModel::toggleGamingMode
+                    )
                     }
                 }
                 
@@ -191,7 +204,7 @@ fun UpdateDialog(
                     Button(
                         onClick = onUpdate,
                         colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan),
-                        enabled = status == null || status.startsWith("Error")
+                        enabled = (status == null || status.startsWith("Error"))
                     ) {
                         Text("DOWNLOAD & INSTALL", color = DarkBackground)
                     }

@@ -43,6 +43,15 @@ android {
         buildConfig = true
     }
 
+    /*
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+    */
+
     publishing {
         singleVariant("debug") {
             withSourcesJar()
@@ -75,6 +84,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.work.runtime.ktx)
     
     implementation(libs.libsu.core)
     implementation(libs.libsu.service)

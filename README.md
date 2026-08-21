@@ -1,71 +1,40 @@
-# DFG Controller (DaisyForGaming Controller)
+# DFG Controller
 
-[![Android CI/CD](https://github.com/bmjubairdadu/DFG-Controller/actions/workflows/android.yml/badge.svg)](https://github.com/bmjubairdadu/DFG-Controller/actions/workflows/android.yml)
-[![Version](https://img.shields.io/github/v/release/bmjubairdadu/DFG-Controller?include_prereleases)](https://github.com/bmjubairdadu/DFG-Controller/releases)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-DFG Controller is an advanced, gaming-focused Android application for rooted devices. It provides a highly polished, HUD-style interface for fine-tuning your kernel parameters, optimizing network stability, and managing hardware-level charging behavior.
-
-## Overview
-Built with Jetpack Compose and Material 3, DFG Controller solves the problem of "flat" and generic system tuning apps. It is intended for gamers and power users who want maximum control over their device's hardware without compromising on visual aesthetics or security.
+Android application to control the **DaisyForGaming** (DFG) kernel on Mi A2 Lite (Daisy).
 
 ## Features
+- **Profiles**: One-tap apply for Performance, Balanced, and Battery presets.
+- **Custom Tunables**: Adjust CPU frequencies, governors, I/O schedulers, and more.
+- **Thermal Monitoring**: Real-time temperature display with safety locks for high-performance modes.
+- **Logs & Diagnostics**: View live kernel logs (`dmesg`) and export them for debugging.
+- **Homescreen Widget**: Quick profile switching directly from your home screen.
+- **Persistence**: Re-applies settings after reboot via WorkManager.
+- **Safety**: Automatically blocks unsafe overrides if critical temperatures are reached.
 
-### 🚀 Performance & Smoothness
-- **Dashboard HUD**: Real-time tracking of kernel version, CPU governor, and I/O scheduler.
-- **Smoothness Controls**: Animated toggles for **Touch Boost** (with duration slider) and **Smart Memory Management** (Aggressive LMK).
-- **Gaming Mode**: A master switch that instantly applies aggressive background app killing and performance presets.
-- **Games Manager**: Per-app triggers to automatically enable performance tweaks when your favorite games launch.
+## Kernel Compatibility
+This app is specifically designed for the DFG kernel which exposes nodes under `/sys/devices/platform/dfg/`.
+- `cpu_min_freq` / `cpu_max_freq`: Frequency control.
+- `governor`: Scaling governor selection.
+- `thermal_status`: Real-time temperature reporting.
+- `boost_ms`: Input boost duration.
 
-### 🔋 Battery & Power
-- **Bypass Charging**: Run your device directly on external power while gaming, significantly reducing battery heat and throttling.
-- **Fast Charge Priority**: Force the kernel to prioritize charging speed within safe hardware limits.
-- **Wakelock Inspector**: Live diagnostic tool to identify apps preventing your device from sleeping.
+## Root & Magisk Instructions
+For full control, root access is required.
+1. Install **Magisk** on your device.
+2. Grant root access to **DFG Controller** when prompted.
+3. (Optional) If the kernel requires specific SELinux permissions, ensure you are using a compatible Magisk module or set SELinux to Permissive (not recommended for daily use).
 
-### 📺 Display & UI
-- **KCAL Calibration**: Full RGB control over your panel's color output with live previews.
-- **Resolution & DPI**: Quickly scale between 720p and 1080p, and adjust screen density (DPI) via a responsive slider/input.
+**Non-Root Mode**: The app will run in read-only mode, allowing you to monitor status but not change settings.
 
-### 🧠 Memory & System
-- **zRAM Control**: Managed compressed swap space with live usage visualization and manual compaction support.
-- **TCP Congestion**: Selection of advanced networking algorithms (Cubic vs. BBR) for lower latency in multiplayer games.
-- **Package Viewer**: Deep-dive into all system and user packages, including target SDK and UID info.
+## Security
+- All sysfs writes are validated against safe ranges.
+- Thermal throttle check: Performance profiles are blocked if the device is above 60°C.
+- No sensitive data or root credentials are stored.
 
-## Quick Links
-- [🚀 Features Details](docs/FEATURES.md)
-- [🏗️ Application Architecture](docs/ARCHITECTURE.md)
-- [📥 Installation Guide](docs/INSTALLATION.md)
-- [📖 User Guide](docs/USER_GUIDE.md)
-- [🔄 Update System](docs/UPDATE_SYSTEM.md)
+## Building
+- Open in Android Studio.
+- Ensure NDK is installed for native optimizations.
+- Run `./gradlew assembleDebug` to build the APK.
 
-## How It Works
-DFG Controller acts as a user-friendly bridge between the Android UI and the Linux Kernel's `sysfs` interface.
-
-```mermaid
-flowchart LR
-    User([User Action]) --> UI[Compose HUD]
-    UI --> VM[MainViewModel]
-    VM --> Shell[ShellManager / libsu]
-    Shell --> Sysfs[/Sysfs Nodes/]
-    Sysfs --> Kernel[Kernel Tweaks]
-```
-
-## Requirements
-- **OS**: Android 8.0+ (Oreo)
-- **Root**: Required (Magisk, KernelSU, or APatch)
-- **Kernel**: Supporting KCAL, Bypass Charging, and zRAM sysfs nodes.
-
-## Installation
-1. Download **`DFG Controller.apk`** from [Official Releases](https://github.com/bmjubairdadu/DFG-Controller/releases).
-2. Install the APK (Allow "Unknown Sources" if prompted).
-3. Grant **Root Access** and **Usage Access** on first launch.
-
-## Development
-```bash
-git clone https://github.com/bmjubairdadu/DFG-Controller.git
-./gradlew assembleDebug
-```
-For more details, see the [Development Guide](docs/DEVELOPMENT.md).
-
----
-© 2026 DaisyForGaming Kernel Team. Distributed under the MIT License.
+## License
+MIT License.

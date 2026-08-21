@@ -33,6 +33,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PackagesScreen(onBack: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val context = LocalContext.current
     val pm = context.packageManager
     
@@ -60,19 +61,20 @@ fun PackagesScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("System Packages") },
+                title = { Text("System Packages", color = accentColor) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
                     }
                 },
                 actions = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 8.dp)) {
                         Text("Show System", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
                         Switch(
                             checked = showSystem,
                             onCheckedChange = { showSystem = it },
-                            modifier = Modifier.scale(0.6f)
+                            modifier = Modifier.scale(0.7f),
+                            colors = SwitchDefaults.colors(checkedThumbColor = accentColor)
                         )
                     }
                 },
@@ -87,14 +89,14 @@ fun PackagesScreen(onBack: () -> Unit) {
                 onValueChange = { searchQuery = it },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 placeholder = { Text("Filter packages...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ElectricCyan),
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = accentColor),
                 shape = RoundedCornerShape(12.dp)
             )
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = ElectricCyan)
+                    CircularProgressIndicator(color = accentColor)
                 }
             } else {
                 LazyColumn(
@@ -113,7 +115,7 @@ fun PackagesScreen(onBack: () -> Unit) {
                             visible = isVisible,
                             enter = fadeIn() + slideInVertically { 20 }
                         ) {
-                            PackageCard(pkg, pm)
+                            PackageCard(pkg, pm, accentColor)
                         }
                     }
                 }
@@ -123,7 +125,7 @@ fun PackagesScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun PackageCard(pkg: PackageInfo, pm: PackageManager) {
+fun PackageCard(pkg: PackageInfo, pm: PackageManager, accentColor: Color) {
     var expanded by remember { mutableStateOf(false) }
     val appInfo = pkg.applicationInfo ?: return
 
@@ -155,7 +157,7 @@ fun PackageCard(pkg: PackageInfo, pm: PackageManager) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
-                    tint = if (expanded) ElectricCyan else Color.DarkGray,
+                    tint = if (expanded) accentColor else Color.DarkGray,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -165,20 +167,20 @@ fun PackageCard(pkg: PackageInfo, pm: PackageManager) {
                 HorizontalDivider(color = Color.DarkGray.copy(alpha = 0.5f))
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                PackageDetailRow("Version", pkg.versionName ?: "Unknown")
-                PackageDetailRow("Target SDK", appInfo.targetSdkVersion.toString())
-                PackageDetailRow("UID", appInfo.uid.toString())
+                PackageDetailRow("Version", pkg.versionName ?: "Unknown", accentColor)
+                PackageDetailRow("Target SDK", appInfo.targetSdkVersion.toString(), accentColor)
+                PackageDetailRow("UID", appInfo.uid.toString(), accentColor)
                 @Suppress("DEPRECATION")
-                PackageDetailRow("Install Source", pm.getInstallerPackageName(pkg.packageName) ?: "Sideloaded")
+                PackageDetailRow("Install Source", pm.getInstallerPackageName(pkg.packageName) ?: "Sideloaded", accentColor)
             }
         }
     }
 }
 
 @Composable
-fun PackageDetailRow(label: String, value: String) {
+fun PackageDetailRow(label: String, value: String, accentColor: Color) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
-        Text(text = value, style = MaterialTheme.typography.labelSmall, color = ElectricCyan, fontWeight = FontWeight.Bold)
+        Text(text = value, style = MaterialTheme.typography.labelSmall, color = accentColor, fontWeight = FontWeight.Bold)
     }
 }

@@ -151,6 +151,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _integrityStatus = MutableStateFlow<IntegrityStatus>(IntegrityStatus.CHECKING)
     val integrityStatus: StateFlow<IntegrityStatus> = _integrityStatus.asStateFlow()
 
+    private val _themeColorName = MutableStateFlow("Cyan")
+    val themeColorName: StateFlow<String> = _themeColorName.asStateFlow()
+
+    private val _statusMessage = MutableStateFlow<String?>(null)
+    val statusMessage: StateFlow<String?> = _statusMessage.asStateFlow()
+
     enum class IntegrityStatus {
         CHECKING, VALID, INVALID_SIGNATURE, DEBUGGER_CONNECTED
     }
@@ -240,6 +246,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         viewModelScope.launch {
             repository.lmkAggressive.collect { _lmkAggressive.value = it }
+        }
+        viewModelScope.launch {
+            repository.themeColor.collect { _themeColorName.value = it }
         }
     }
 
@@ -413,6 +422,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (ShellManager.writeSysfs(SysfsPaths.LMK_AGGRESSIVE, if (enabled) "1" else "0")) {
                 repository.saveLmkAggressive(enabled)
                 _lmkAggressive.value = enabled
+                showStatus("Memory optimization ${if (enabled) "enabled" else "disabled"}")
+            } else {
+                showStatus("Failed to apply memory optimization")
+            }
+        }
+    }
+
+    fun setThemeColor(name: String) {
+        viewModelScope.launch {
+            repository.saveThemeColor(name)
+        }
+    }
+
+    private fun showStatus(message: String) {
+        viewModelScope.launch {
+            _statusMessage.value = message
+            delay(3.seconds)
+            if (_statusMessage.value == message) {
+                _statusMessage.value = null
             }
         }
     }

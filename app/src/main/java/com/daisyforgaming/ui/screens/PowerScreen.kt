@@ -32,6 +32,7 @@ import com.daisyforgaming.ui.theme.DarkSurface
 
 @Composable
 fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, onNavigateToWakelocks: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val fastCharge by viewModel.fastCharge.collectAsState()
     val dynamicFsync by viewModel.dynamicFsync.collectAsState()
     val bypassTriggerEnabled by viewModel.bypassTriggerEnabled.collectAsState()
@@ -61,7 +62,8 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
                 label = "FORCE FAST CHARGE",
                 description = "Increase charging current (use with caution)",
                 checked = fastCharge,
-                onCheckedChange = { viewModel.setFastCharge(it) }
+                onCheckedChange = { viewModel.setFastCharge(it) },
+                accentColor = accentColor
             )
         }
 
@@ -70,7 +72,8 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
                 label = "DYNAMIC FSYNC",
                 description = "Disable fsync while screen is on for better performance",
                 checked = dynamicFsync,
-                onCheckedChange = { viewModel.setDynamicFsync(it) }
+                onCheckedChange = { viewModel.setDynamicFsync(it) },
+                accentColor = accentColor
             )
         }
 
@@ -79,7 +82,8 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
                 label = "FAST CHARGE PRIORITY",
                 description = "Charges faster within safe limits. Does not affect how long a full charge lasts.",
                 checked = chargePriority,
-                onCheckedChange = { viewModel.setChargePriority(it) }
+                onCheckedChange = { viewModel.setChargePriority(it) },
+                accentColor = accentColor
             )
         }
 
@@ -89,20 +93,20 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkSurface)
             ) {
-                Text("OPEN WAKELOCK INSPECTOR", color = ElectricCyan)
+                Text("OPEN WAKELOCK INSPECTOR", color = accentColor)
             }
         }
 
         if (autoFastChargeActive) {
             item {
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
+                    colors = CardDefaults.cardColors(containerColor = accentColor.copy(alpha = 0.1f)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ElectricCyan, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = accentColor, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("AUTO FAST-CHARGE ENGAGED", style = MaterialTheme.typography.labelMedium, color = ElectricCyan)
+                        Text("AUTO FAST-CHARGE ENGAGED", style = MaterialTheme.typography.labelMedium, color = accentColor)
                     }
                 }
             }
@@ -113,7 +117,7 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
         }
 
         item {
-            Text(text = "NETWORK TUNING", style = MaterialTheme.typography.headlineSmall, color = ElectricCyan)
+            Text(text = "NETWORK TUNING", style = MaterialTheme.typography.headlineSmall, color = accentColor)
             Spacer(modifier = Modifier.height(12.dp))
             
             // Map available congestions to user-friendly labels if they exist
@@ -168,7 +172,7 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
         }
 
         item {
-            Text(text = "MEMORY & ZRAM", style = MaterialTheme.typography.headlineSmall, color = ElectricCyan)
+            Text(text = "MEMORY & ZRAM", style = MaterialTheme.typography.headlineSmall, color = accentColor)
         }
 
         item {
@@ -177,7 +181,8 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
                 size = zramSize,
                 stats = memoryStats,
                 onEnabledChange = { viewModel.setZramEnabled(it) },
-                onSizeChange = { viewModel.setZramSize(it) }
+                onSizeChange = { viewModel.setZramSize(it) },
+                accentColor = accentColor
             )
         }
 
@@ -185,7 +190,8 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
             MemoryActionCard(
                 label = "Compact ZRAM",
                 description = "Free up memory by compressing unused ZRAM blocks.",
-                onAction = { viewModel.compactZram() }
+                onAction = { viewModel.compactZram() },
+                accentColor = accentColor
             )
         }
 
@@ -197,7 +203,7 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
             Text(
                 text = "BYPASS CHARGING",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
         }
 
@@ -214,7 +220,8 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
                 enabled = bypassTriggerEnabled,
                 packageName = bypassTriggerPackage,
                 onEnabledChange = { viewModel.setBypassTriggerEnabled(it) },
-                onSelectApp = onNavigateToAppSelector
+                onSelectApp = onNavigateToAppSelector,
+                accentColor = accentColor
             )
         }
 
@@ -223,7 +230,7 @@ fun PowerScreen(viewModel: MainViewModel, onNavigateToAppSelector: () -> Unit, o
 }
 
 @Composable
-fun MemoryActionCard(label: String, description: String, onAction: () -> Unit) {
+fun MemoryActionCard(label: String, description: String, accentColor: Color, onAction: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -234,14 +241,14 @@ fun MemoryActionCard(label: String, description: String, onAction: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = label, style = MaterialTheme.typography.titleLarge, color = ElectricCyan)
+                Text(text = label, style = MaterialTheme.typography.titleLarge, color = accentColor)
                 Text(text = description, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
             Button(
                 onClick = onAction,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.2f))
+                colors = ButtonDefaults.buttonColors(containerColor = accentColor.copy(alpha = 0.2f))
             ) {
-                Text("APPLY", color = ElectricCyan)
+                Text("APPLY", color = accentColor)
             }
         }
     }
@@ -283,6 +290,7 @@ fun UsageAccessOnboardingCard(onGrantClick: () -> Unit) {
 fun BypassTriggerCard(
     enabled: Boolean,
     packageName: String?,
+    accentColor: Color,
     onEnabledChange: (Boolean) -> Unit,
     onSelectApp: () -> Unit
 ) {
@@ -294,7 +302,7 @@ fun BypassTriggerCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("App-Triggered Bypass", style = MaterialTheme.typography.titleLarge, color = ElectricCyan)
+                    Text("App-Triggered Bypass", style = MaterialTheme.typography.titleLarge, color = accentColor)
                     Text(
                         "Automatically engage bypass charging when a specific app is in foreground.",
                         style = MaterialTheme.typography.bodySmall,
@@ -346,6 +354,7 @@ fun ZramControlCard(
     enabled: Boolean,
     size: String,
     stats: com.daisyforgaming.core.MemoryStats,
+    accentColor: Color,
     onEnabledChange: (Boolean) -> Unit,
     onSizeChange: (String) -> Unit
 ) {
@@ -373,38 +382,38 @@ fun ZramControlCard(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            MemoryUsageBar(label = "SYSTEM RAM", total = stats.totalRam, free = stats.freeRam)
+            MemoryUsageBar(label = "SYSTEM RAM", total = stats.totalRam, free = stats.freeRam, accentColor = accentColor)
             Spacer(modifier = Modifier.height(12.dp))
-            MemoryUsageBar(label = "ZRAM SWAP", total = stats.totalZram, free = stats.freeZram)
+            MemoryUsageBar(label = "ZRAM SWAP", total = stats.totalZram, free = stats.freeZram, accentColor = accentColor)
         }
     }
 }
 
 @Composable
-fun MemoryUsageBar(label: String, total: Long, free: Long) {
+fun MemoryUsageBar(label: String, total: Long, free: Long, accentColor: Color) {
     val used = total - free
     val progress = if (total > 0) used.toFloat() / total.toFloat() else 0f
     
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
-            Text("${used / 1024}MB / ${total / 1024}MB", style = MaterialTheme.typography.labelSmall, color = ElectricCyan)
+            Text("${used / 1024}MB / ${total / 1024}MB", style = MaterialTheme.typography.labelSmall, color = accentColor)
         }
         Spacer(modifier = Modifier.height(4.dp))
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
-            color = ElectricCyan,
+            color = accentColor,
             trackColor = Color.DarkGray
         )
     }
 }
 
 @Composable
-fun PowerToggleRow(label: String, description: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun PowerToggleRow(label: String, description: String, checked: Boolean, accentColor: Color, onCheckedChange: (Boolean) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = label, style = MaterialTheme.typography.titleLarge, color = ElectricCyan)
+            Text(text = label, style = MaterialTheme.typography.titleLarge, color = accentColor)
             Text(text = description, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
         }
         AnimatedKernelSwitch(checked = checked, onCheckedChange = onCheckedChange)

@@ -19,6 +19,7 @@ import com.daisyforgaming.ui.theme.DarkSurface
 
 @Composable
 fun DisplayScreen(viewModel: MainViewModel) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val r by viewModel.kcalR.collectAsState()
     val g by viewModel.kcalG.collectAsState()
     val b by viewModel.kcalB.collectAsState()
@@ -39,7 +40,7 @@ fun DisplayScreen(viewModel: MainViewModel) {
                 Text(
                     text = "KCAL ENABLE",
                     style = MaterialTheme.typography.titleLarge,
-                    color = ElectricCyan,
+                    color = accentColor,
                     modifier = Modifier.weight(1f)
                 )
                 AnimatedKernelSwitch(checked = enabled, onCheckedChange = { viewModel.setKcalEnabled(it) })
@@ -54,9 +55,9 @@ fun DisplayScreen(viewModel: MainViewModel) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     ColorPreview(r, g, b)
                     Spacer(modifier = Modifier.height(24.dp))
-                    KcalSlider(label = "RED", value = r, color = Color.Red) { viewModel.updateKcal(it, g, b) }
-                    KcalSlider(label = "GREEN", value = g, color = Color.Green) { viewModel.updateKcal(r, it, b) }
-                    KcalSlider(label = "BLUE", value = b, color = Color.Blue) { viewModel.updateKcal(r, g, it) }
+                    KcalSlider(label = "RED", value = r, color = Color.Red, accentColor = accentColor) { viewModel.updateKcal(it, g, b) }
+                    KcalSlider(label = "GREEN", value = g, color = Color.Green, accentColor = accentColor) { viewModel.updateKcal(r, it, b) }
+                    KcalSlider(label = "BLUE", value = b, color = Color.Blue, accentColor = accentColor) { viewModel.updateKcal(r, g, it) }
                 }
             }
         }
@@ -67,7 +68,7 @@ fun DisplayScreen(viewModel: MainViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkSurface)
             ) {
-                Text("RESET KCAL", color = ElectricCyan)
+                Text("RESET KCAL", color = accentColor)
             }
         }
 
@@ -79,12 +80,13 @@ fun DisplayScreen(viewModel: MainViewModel) {
             Text(
                 text = "RESOLUTION CONTROL",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
         }
 
         item {
             ResolutionCard(
+                accentColor = accentColor,
                 onReset = { viewModel.resetResolution() },
                 onSet = { w, h -> viewModel.setResolution(w, h) }
             )
@@ -98,13 +100,14 @@ fun DisplayScreen(viewModel: MainViewModel) {
             Text(
                 text = "DPI / DENSITY CONTROL",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
         }
 
         item {
             DpiControlCard(
                 info = dpiInfo,
+                accentColor = accentColor,
                 onReset = { viewModel.resetDpi() },
                 onApply = { viewModel.setDpi(it) }
             )
@@ -115,7 +118,7 @@ fun DisplayScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
+fun DpiControlCard(info: String, accentColor: Color, onReset: () -> Unit, onApply: (Int) -> Unit) {
     var textValue by remember { mutableStateOf("") }
     // Try to extract current DPI from info string for slider default
     val currentDpi = remember(info) {
@@ -141,7 +144,7 @@ fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
             Text(
                 text = "TARGET DPI: ${sliderValue.toInt()}",
                 style = MaterialTheme.typography.labelMedium,
-                color = ElectricCyan
+                color = accentColor
             )
             GlowSlider(
                 value = sliderValue,
@@ -150,7 +153,7 @@ fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
                     textValue = it.toInt().toString()
                 },
                 valueRange = 160f..720f,
-                accentColor = ElectricCyan
+                accentColor = accentColor
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -168,7 +171,7 @@ fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
                     label = { Text("Manual Input") },
                     placeholder = { Text("e.g. 480") },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ElectricCyan,
+                        focusedBorderColor = accentColor,
                         unfocusedBorderColor = Color.DarkGray
                     ),
                     shape = RoundedCornerShape(12.dp),
@@ -180,7 +183,7 @@ fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
                         val target = textValue.toIntOrNull() ?: sliderValue.toInt()
                         onApply(target)
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan, contentColor = Color.Black)
+                    colors = ButtonDefaults.buttonColors(containerColor = accentColor, contentColor = Color.Black)
                 ) {
                     Text("APPLY")
                 }
@@ -192,14 +195,14 @@ fun DpiControlCard(info: String, onReset: () -> Unit, onApply: (Int) -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.DarkGray)
             ) {
-                Text("RESET TO DEFAULT", color = ElectricCyan)
+                Text("RESET TO DEFAULT", color = accentColor)
             }
         }
     }
 }
 
 @Composable
-fun ResolutionCard(onReset: () -> Unit, onSet: (Int, Int) -> Unit) {
+fun ResolutionCard(accentColor: Color, onReset: () -> Unit, onSet: (Int, Int) -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
         shape = RoundedCornerShape(16.dp)
@@ -212,7 +215,7 @@ fun ResolutionCard(onReset: () -> Unit, onSet: (Int, Int) -> Unit) {
                 Button(onClick = { onSet(1080, 1920) }, modifier = Modifier.weight(1f)) { Text("1080p") }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(onClick = onReset, modifier = Modifier.fillMaxWidth()) { Text("RESET TO NATIVE", color = ElectricCyan) }
+            OutlinedButton(onClick = onReset, modifier = Modifier.fillMaxWidth()) { Text("RESET TO NATIVE", color = accentColor) }
         }
     }
 }
@@ -229,11 +232,11 @@ fun ColorPreview(r: Float, g: Float, b: Float) {
 }
 
 @Composable
-fun KcalSlider(label: String, value: Float, color: Color, onValueChange: (Float) -> Unit) {
+fun KcalSlider(label: String, value: Float, color: Color, accentColor: Color, onValueChange: (Float) -> Unit) {
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = label, color = Color.Gray, style = MaterialTheme.typography.labelMedium)
-            Text(text = value.toInt().toString(), color = ElectricCyan, style = MaterialTheme.typography.labelMedium)
+            Text(text = value.toInt().toString(), color = accentColor, style = MaterialTheme.typography.labelMedium)
         }
         GlowSlider(value = value, onValueChange = onValueChange, accentColor = color)
         Spacer(modifier = Modifier.height(16.dp))

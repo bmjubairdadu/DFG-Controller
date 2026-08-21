@@ -32,6 +32,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSelectorScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val apps by viewModel.installedApps.collectAsState()
     val isLoading by viewModel.isAppListLoading.collectAsState()
     val selectedPackage by viewModel.bypassTriggerPackage.collectAsState()
@@ -51,19 +52,20 @@ fun AppSelectorScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Select Trigger App", style = MaterialTheme.typography.titleLarge) },
+                title = { Text("Select Trigger App", style = MaterialTheme.typography.titleLarge, color = accentColor) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
                     }
                 },
                 actions = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 8.dp)) {
                         Text("System", style = MaterialTheme.typography.labelMedium, color = Color.Gray)
                         Switch(
                             checked = showSystemApps,
                             onCheckedChange = { viewModel.setShowSystemApps(it) },
-                            modifier = Modifier.scale(0.7f)
+                            modifier = Modifier.scale(0.7f),
+                            colors = SwitchDefaults.colors(checkedThumbColor = accentColor)
                         )
                     }
                 },
@@ -80,17 +82,17 @@ fun AppSelectorScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                     .fillMaxWidth()
                     .padding(16.dp),
                 placeholder = { Text("Search apps...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = ElectricCyan,
-                    cursorColor = ElectricCyan
+                    focusedBorderColor = accentColor,
+                    cursorColor = accentColor
                 ),
                 shape = RoundedCornerShape(12.dp)
             )
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = ElectricCyan)
+                    CircularProgressIndicator(color = accentColor)
                 }
             } else {
                 LazyColumn(
@@ -112,6 +114,7 @@ fun AppSelectorScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             AppCard(
                                 app = app,
                                 isSelected = app.packageName == selectedPackage,
+                                accentColor = accentColor,
                                 onClick = {
                                     viewModel.setBypassTriggerPackage(app.packageName)
                                     onBack()
@@ -126,16 +129,16 @@ fun AppSelectorScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun AppCard(app: com.daisyforgaming.ui.models.AppInfo, isSelected: Boolean, onClick: () -> Unit) {
+fun AppCard(app: com.daisyforgaming.ui.models.AppInfo, isSelected: Boolean, accentColor: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) ElectricCyan.copy(alpha = 0.1f) else DarkSurface
+            containerColor = if (isSelected) accentColor.copy(alpha = 0.1f) else DarkSurface
         ),
         shape = RoundedCornerShape(16.dp),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, ElectricCyan) else null
+        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, accentColor) else null
     ) {
         Row(
             modifier = Modifier.padding(12.dp),

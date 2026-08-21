@@ -26,6 +26,7 @@ import com.daisyforgaming.ui.theme.ElectricCyan
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val logs by viewModel.kernelLogs.collectAsState()
     val context = LocalContext.current
     
@@ -36,7 +37,7 @@ fun LogsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("KERNEL LOGS", style = MaterialTheme.typography.titleLarge, color = ElectricCyan) },
+                title = { Text("KERNEL LOGS", style = MaterialTheme.typography.titleLarge, color = accentColor) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
@@ -44,7 +45,7 @@ fun LogsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 },
                 actions = {
                     IconButton(onClick = { viewModel.refreshKernelLogs() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = ElectricCyan)
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = accentColor)
                     }
                     IconButton(onClick = {
                         viewModel.exportLogs(context) { path ->
@@ -54,7 +55,7 @@ fun LogsScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             }
                         }
                     }) {
-                        Icon(Icons.Default.Share, contentDescription = "Export", tint = ElectricCyan)
+                        Icon(Icons.Default.Share, contentDescription = "Export", tint = accentColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)

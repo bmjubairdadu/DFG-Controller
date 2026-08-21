@@ -51,6 +51,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Packages : Screen("packages", "Packages", Icons.AutoMirrored.Filled.ListAlt)
     object Logs : Screen("logs", "Logs", Icons.AutoMirrored.Filled.List)
     object Help : Screen("help", "Help", Icons.AutoMirrored.Filled.Help)
+    object Customization : Screen("customization", "Customization", Icons.Default.Palette)
 }
 
 class MainActivity : ComponentActivity() {
@@ -80,7 +81,10 @@ class MainActivity : ComponentActivity() {
         observeServiceState()
         
         setContent {
-            DFGControllerTheme {
+            val themeName by viewModel.themeColorName.collectAsState()
+            val accentColor = com.daisyforgaming.ui.theme.getThemeColor(themeName)
+
+            DFGControllerTheme(accentColor = accentColor) {
                 val integrityStatus by viewModel.integrityStatus.collectAsState()
 
                 Surface(
@@ -145,6 +149,15 @@ fun IntegrityErrorScreen(message: String) {
 @Composable
 fun MainScaffold(viewModel: MainViewModel) {
     val navController = rememberNavController()
+    val statusMessage by viewModel.statusMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(statusMessage) {
+        statusMessage?.let {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
+
     val screens = listOf(
         Screen.Dashboard,
         Screen.CpuIo,
@@ -155,6 +168,7 @@ fun MainScaffold(viewModel: MainViewModel) {
     )
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
@@ -262,7 +276,8 @@ fun MainScaffold(viewModel: MainViewModel) {
                     onNavigateToCompatibility = { navController.navigate(Screen.Compatibility.route) },
                     onNavigateToPackages = { navController.navigate(Screen.Packages.route) },
                     onNavigateToLogs = { navController.navigate(Screen.Logs.route) },
-                    onNavigateToHelp = { navController.navigate(Screen.Help.route) }
+                    onNavigateToHelp = { navController.navigate(Screen.Help.route) },
+                    onNavigateToCustomization = { navController.navigate(Screen.Customization.route) }
                 )
             }
             composable(Screen.Compatibility.route) {
@@ -279,6 +294,9 @@ fun MainScaffold(viewModel: MainViewModel) {
             }
             composable(Screen.Help.route) {
                 HelpScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Screen.Customization.route) {
+                CustomizationScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
         }
     }

@@ -27,6 +27,7 @@ fun AnimatedSegmentedControl(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val accentColor = MaterialTheme.colorScheme.primary
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
@@ -51,14 +52,14 @@ fun AnimatedSegmentedControl(
                 .width(segmentWidth)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(8.dp))
-                .background(ElectricCyan.copy(alpha = 0.2f))
+                .background(accentColor.copy(alpha = 0.2f))
         )
 
         Row(modifier = Modifier.fillMaxWidth()) {
             options.forEach { option ->
                 val isSelected = option == selectedOption
                 val textColor by animateColorAsState(
-                    targetValue = if (isSelected) ElectricCyan else Color.Gray,
+                    targetValue = if (isSelected) accentColor else Color.Gray,
                     label = "textColor"
                 )
 

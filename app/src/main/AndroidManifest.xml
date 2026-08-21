@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".DFGApplication"
         android:allowBackup="true"
         android:icon="@drawable/app_logo"
         android:label="DFG Controller"

@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.daisyforgaming.ui.theme.ElectricCyan
+import androidx.compose.material3.MaterialTheme
 import com.daisyforgaming.ui.theme.DarkSurface
 
 @Composable
@@ -28,13 +28,14 @@ fun AnimatedKernelSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val interactionSource = remember { MutableInteractionSource() }
     val trackColor by animateColorAsState(
-        targetValue = if (checked) ElectricCyan.copy(alpha = 0.3f) else DarkSurface,
+        targetValue = if (checked) accentColor.copy(alpha = 0.3f) else DarkSurface,
         label = "trackColor"
     )
     val thumbColor by animateColorAsState(
-        targetValue = if (checked) ElectricCyan else Color.Gray,
+        targetValue = if (checked) accentColor else Color.Gray,
         label = "thumbColor"
     )
     val thumbOffset by animateDpAsState(
@@ -43,8 +44,8 @@ fun AnimatedKernelSwitch(
         label = "thumbOffset"
     )
     val scale by animateFloatAsState(
-        targetValue = if (checked) 1.1f else 1.0f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        targetValue = if (checked) 1.2f else 1.0f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioHighBouncy),
         label = "scale"
     )
 

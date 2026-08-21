@@ -26,9 +26,23 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun DFGControllerTheme(
+    accentColor: Color = ElectricCyan,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = DarkColorScheme
+    val colorScheme = darkColorScheme(
+        primary = accentColor,
+        onPrimary = DarkBackground,
+        primaryContainer = accentColor.copy(alpha = 0.1f),
+        onPrimaryContainer = accentColor,
+        background = DarkBackground,
+        onBackground = Color.White,
+        surface = DarkSurface,
+        onSurface = Color.White,
+        surfaceVariant = Color(0xFF222733),
+        onSurfaceVariant = Color(0xFFB0BEC5),
+        error = ErrorRed,
+        onError = DarkBackground
+    )
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

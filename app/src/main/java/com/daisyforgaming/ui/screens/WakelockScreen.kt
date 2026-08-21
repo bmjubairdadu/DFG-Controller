@@ -26,6 +26,7 @@ data class WakelockInfo(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WakelockScreen(onBack: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     var wakelocks by remember { mutableStateOf<List<WakelockInfo>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -47,10 +48,10 @@ fun WakelockScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Wakelock Inspector") },
+                title = { Text("Wakelock Inspector", color = accentColor) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
@@ -60,7 +61,7 @@ fun WakelockScreen(onBack: () -> Unit) {
     ) { padding ->
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = ElectricCyan)
+                CircularProgressIndicator(color = accentColor)
             }
         } else {
             LazyColumn(
@@ -72,7 +73,7 @@ fun WakelockScreen(onBack: () -> Unit) {
                     Text(
                         "TOP BATTERY DRAIN SOURCES",
                         style = MaterialTheme.typography.labelMedium,
-                        color = ElectricCyan,
+                        color = accentColor,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
@@ -84,7 +85,7 @@ fun WakelockScreen(onBack: () -> Unit) {
                 }
 
                 items(wakelocks) { info ->
-                    WakelockCard(info)
+                    WakelockCard(info, accentColor)
                 }
             }
         }
@@ -92,7 +93,7 @@ fun WakelockScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun WakelockCard(info: WakelockInfo) {
+fun WakelockCard(info: WakelockInfo, accentColor: Color) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
@@ -103,7 +104,7 @@ fun WakelockCard(info: WakelockInfo) {
                 Text(text = info.name, style = MaterialTheme.typography.titleMedium, color = Color.White)
                 Text(text = "Total Time: ${info.totalTime}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
-            Text(text = info.count, style = MaterialTheme.typography.headlineSmall, color = ElectricCyan)
+            Text(text = info.count, style = MaterialTheme.typography.headlineSmall, color = accentColor)
         }
     }
 }

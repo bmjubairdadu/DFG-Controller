@@ -1,16 +1,14 @@
 package com.daisyforgaming.ui.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,17 +29,32 @@ fun DashboardHeroCard(
     isThermalCritical: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val accentColor = MaterialTheme.colorScheme.primary
+    val infiniteTransition = rememberInfiniteTransition(label = "glow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.05f,
+        targetValue = 0.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glowAlpha"
+    )
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(240.dp)
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(DarkSurface, ElectricCyan.copy(alpha = 0.1f))
+                    colors = listOf(
+                        DarkSurface,
+                        accentColor.copy(alpha = 0.1f + glowAlpha)
+                    )
                 )
             )
-            .padding(20.dp)
+            .padding(24.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.weight(1f)) {

@@ -1,10 +1,11 @@
 package com.daisyforgaming.ui.screens
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,107 +15,105 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.daisyforgaming.R
 import com.daisyforgaming.BuildConfig
-import com.daisyforgaming.ui.theme.ElectricCyan
+import kotlinx.coroutines.delay
 
 @Composable
 fun AboutScreen(
     onNavigateToCompatibility: () -> Unit, 
     onNavigateToPackages: () -> Unit,
     onNavigateToLogs: () -> Unit,
-    onNavigateToHelp: () -> Unit
+    onNavigateToHelp: () -> Unit,
+    onNavigateToCustomization: () -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    val accentColor = MaterialTheme.colorScheme.primary
+    
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(100)
+        visible = true
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn() + slideInVertically { it / 2 }
     ) {
-        item {
-            Image(
-                painter = painterResource(id = R.drawable.app_logo),
-                contentDescription = "DFG Logo",
-                modifier = Modifier.size(120.dp)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "DFG Controller",
-                style = MaterialTheme.typography.headlineMedium,
-                color = ElectricCyan,
-                fontFamily = com.daisyforgaming.ui.theme.OrbitronFamily
-            )
-            Text(
-                text = "Version ${BuildConfig.VERSION_NAME} (DaisyForGaming)",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Button(
-                onClick = onNavigateToCompatibility,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("KERNEL COMPATIBILITY INFO", color = ElectricCyan)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item {
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "DFG Logo",
+                    modifier = Modifier.size(120.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "DFG Controller",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = accentColor,
+                    fontFamily = com.daisyforgaming.ui.theme.OrbitronFamily
+                )
+                Text(
+                    text = "Version ${BuildConfig.VERSION_NAME} (DaisyForGaming)",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Button(
-                onClick = onNavigateToPackages,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("SYSTEM PACKAGES", color = ElectricCyan)
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    AboutButton("KERNEL COMPATIBILITY INFO", accentColor, onNavigateToCompatibility)
+                    AboutButton("SYSTEM PACKAGES", accentColor, onNavigateToPackages)
+                    AboutButton("KERNEL LOGS", accentColor, onNavigateToLogs)
+                    AboutButton("GET HELP & DOCUMENTATION", accentColor, onNavigateToHelp)
+                    AboutButton("APP CUSTOMIZATION", accentColor, onNavigateToCustomization)
+                }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onNavigateToLogs,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("KERNEL LOGS", color = ElectricCyan)
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    AboutInfoCard(
+                        title = "KERNEL CONTROL",
+                        description = "Advanced tuning for rooted Android devices. Optimized for gaming performance.",
+                        accentColor = accentColor
+                    )
+                    
+                    AboutInfoCard(
+                        title = "DEVELOPER",
+                        description = "DaisyForGaming Kernel Team",
+                        accentColor = accentColor
+                    )
+                }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onNavigateToHelp,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan.copy(alpha = 0.1f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("GET HELP & DOCUMENTATION", color = ElectricCyan)
+            item {
+                Text(
+                    text = "© 2026 DaisyForGaming. All rights reserved.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.DarkGray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
-            
-            Spacer(modifier = Modifier.height(48.dp))
-            
-            AboutInfoCard(
-                title = "KERNEL CONTROL",
-                description = "Advanced tuning for rooted Android devices. Optimized for gaming performance."
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            AboutInfoCard(
-                title = "DEVELOPER",
-                description = "DaisyForGaming Kernel Team"
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Text(
-                text = "© 2026 DaisyForGaming. All rights reserved.",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.DarkGray,
-                textAlign = TextAlign.Center
-            )
         }
     }
 }
 
 @Composable
-fun AboutInfoCard(title: String, description: String) {
+fun AboutButton(text: String, accentColor: Color, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = accentColor.copy(alpha = 0.1f)),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text, color = accentColor)
+    }
+}
+
+@Composable
+fun AboutInfoCard(title: String, description: String, accentColor: Color) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = com.daisyforgaming.ui.theme.DarkSurface),
@@ -124,7 +123,7 @@ fun AboutInfoCard(title: String, description: String) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelMedium,
-                color = ElectricCyan,
+                color = accentColor,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))

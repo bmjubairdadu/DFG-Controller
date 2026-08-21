@@ -24,6 +24,7 @@ import com.daisyforgaming.ui.theme.DarkSurface
 
 @Composable
 fun CpuIoScreen(viewModel: MainViewModel) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val currentGovernor by viewModel.currentGovernor.collectAsState()
     val availableGovernors by viewModel.availableGovernors.collectAsState()
     val currentScheduler by viewModel.currentScheduler.collectAsState()
@@ -53,7 +54,7 @@ fun CpuIoScreen(viewModel: MainViewModel) {
             Text(
                 text = "CPU FREQUENCIES",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -62,12 +63,14 @@ fun CpuIoScreen(viewModel: MainViewModel) {
                     label = "Minimum Frequency",
                     currentFreq = currentCpuMinFreq,
                     availableFrequencies = availableFrequencies,
+                    accentColor = accentColor,
                     onFreqSelected = { viewModel.setCpuMinFreq(it) }
                 )
                 FrequencySlider(
                     label = "Maximum Frequency",
                     currentFreq = currentCpuMaxFreq,
                     availableFrequencies = availableFrequencies,
+                    accentColor = accentColor,
                     onFreqSelected = { viewModel.setCpuMaxFreq(it) }
                 )
             }
@@ -77,7 +80,7 @@ fun CpuIoScreen(viewModel: MainViewModel) {
             Text(
                 text = "CPU GOVERNOR",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
             Spacer(modifier = Modifier.height(12.dp))
             if (availableGovernors.isNotEmpty()) {
@@ -94,7 +97,7 @@ fun CpuIoScreen(viewModel: MainViewModel) {
             Text(
                 text = "I/O SCHEDULER",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
             Spacer(modifier = Modifier.height(12.dp))
             AnimatedSegmentedControl(
@@ -113,7 +116,7 @@ fun CpuIoScreen(viewModel: MainViewModel) {
             Text(
                 text = "SMOOTHNESS",
                 style = MaterialTheme.typography.headlineSmall,
-                color = ElectricCyan
+                color = accentColor
             )
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -151,13 +154,13 @@ fun CpuIoScreen(viewModel: MainViewModel) {
                                 Text(
                                     text = "Boost Duration: ${touchBoostDuration}ms",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = ElectricCyan
+                                    color = accentColor
                                 )
                                 GlowSlider(
                                     value = touchBoostDuration.toFloat(),
                                     onValueChange = { viewModel.setTouchBoostDuration(it.toInt()) },
                                     valueRange = 20f..150f,
-                                    accentColor = ElectricCyan
+                                    accentColor = accentColor
                                 )
                                 Text(
                                     text = "Kernel range: 20ms - 150ms",
@@ -188,6 +191,7 @@ fun FrequencySlider(
     label: String,
     currentFreq: String,
     availableFrequencies: List<String>,
+    accentColor: Color,
     onFreqSelected: (String) -> Unit
 ) {
     val currentIndex = availableFrequencies.indexOf(currentFreq).coerceAtLeast(0)
@@ -202,7 +206,7 @@ fun FrequencySlider(
             Text(
                 text = if (currentFreq == "-") "N/A" else "${currentFreq.toLongOrNull()?.let { it / 1000 } ?: currentFreq} MHz",
                 style = MaterialTheme.typography.labelSmall,
-                color = ElectricCyan
+                color = accentColor
             )
             if (availableFrequencies.isNotEmpty()) {
                 GlowSlider(
@@ -211,7 +215,7 @@ fun FrequencySlider(
                         onFreqSelected(availableFrequencies[index.toInt().coerceIn(0, availableFrequencies.size - 1)])
                     },
                     valueRange = 0f..(availableFrequencies.size - 1).toFloat(),
-                    accentColor = ElectricCyan
+                    accentColor = accentColor
                 )
             }
         }

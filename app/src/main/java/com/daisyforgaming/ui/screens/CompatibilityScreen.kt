@@ -18,6 +18,7 @@ import com.daisyforgaming.ui.theme.DarkSurface
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CompatibilityScreen(onBack: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val features = listOf(
         "Module Loading (LKM)" to "Full support for external kernel modules.",
         "init.d Support" to "Auto-run scripts on boot from /system/etc/init.d.",
@@ -50,27 +51,27 @@ fun CompatibilityScreen(onBack: () -> Unit) {
                 Text(
                     "CONFIRMED KERNEL FEATURES",
                     style = MaterialTheme.typography.labelMedium,
-                    color = ElectricCyan,
+                    color = accentColor,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
             items(features.size) { index ->
                 val (title, desc) = features[index]
-                FeatureCard(title, desc)
+                FeatureCard(title, desc, accentColor)
             }
         }
     }
 }
 
 @Composable
-fun FeatureCard(title: String, description: String) {
+fun FeatureCard(title: String, description: String, accentColor: Color) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
         shape = MaterialTheme.shapes.medium
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Green, modifier = Modifier.size(24.dp))
+            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = accentColor, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(text = title, style = MaterialTheme.typography.titleMedium, color = Color.White)

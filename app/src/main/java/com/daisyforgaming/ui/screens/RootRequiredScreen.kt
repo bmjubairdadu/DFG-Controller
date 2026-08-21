@@ -18,6 +18,7 @@ import com.daisyforgaming.ui.theme.ElectricCyan
 
 @Composable
 fun RootRequiredScreen(onRetry: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -35,7 +36,7 @@ fun RootRequiredScreen(onRetry: () -> Unit) {
                 imageVector = Icons.Default.Warning,
                 contentDescription = null,
                 modifier = Modifier.size(40.dp),
-                tint = Color.Red
+                tint = com.daisyforgaming.ui.theme.ErrorRed
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
@@ -52,9 +53,9 @@ fun RootRequiredScreen(onRetry: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onRetry,
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan)
+                colors = ButtonDefaults.buttonColors(containerColor = accentColor)
             ) {
-                Text("RETRY", color = Color.Black)
+                Text("RETRY", color = com.daisyforgaming.ui.theme.DarkBackground)
             }
         }
     }

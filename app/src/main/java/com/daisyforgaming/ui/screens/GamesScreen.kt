@@ -32,6 +32,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesScreen(viewModel: MainViewModel, onBack: () -> Unit) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val apps by viewModel.installedApps.collectAsState()
     val isLoading by viewModel.isAppListLoading.collectAsState()
     val gameApps by viewModel.gameApps.collectAsState()
@@ -68,11 +69,11 @@ fun GamesScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             SecondaryTabRow(
                 selectedTabIndex = tabIndex,
                 containerColor = DarkBackground,
-                contentColor = ElectricCyan,
+                contentColor = accentColor,
                 indicator = { 
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabIndex),
-                        color = ElectricCyan
+                        color = accentColor
                     )
                 }
             ) {
@@ -90,13 +91,13 @@ fun GamesScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 placeholder = { Text("Search apps...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = ElectricCyan),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = accentColor),
                 shape = RoundedCornerShape(12.dp)
             )
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = ElectricCyan)
+                    CircularProgressIndicator(color = accentColor)
                 }
             } else {
                 LazyColumn(
@@ -120,6 +121,7 @@ fun GamesScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                             MultiSelectAppCard(
                                 app = app,
                                 isSelected = isSelected,
+                                accentColor = accentColor,
                                 onClick = {
                                     if (tabIndex == 0) viewModel.toggleGameApp(app.packageName)
                                     else viewModel.toggleWhitelistApp(app.packageName)
@@ -134,14 +136,14 @@ fun GamesScreen(viewModel: MainViewModel, onBack: () -> Unit) {
 }
 
 @Composable
-fun MultiSelectAppCard(app: com.daisyforgaming.ui.models.AppInfo, isSelected: Boolean, onClick: () -> Unit) {
+fun MultiSelectAppCard(app: com.daisyforgaming.ui.models.AppInfo, isSelected: Boolean, accentColor: Color, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) ElectricCyan.copy(alpha = 0.1f) else DarkSurface
+            containerColor = if (isSelected) accentColor.copy(alpha = 0.1f) else DarkSurface
         ),
         shape = RoundedCornerShape(16.dp),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, ElectricCyan) else null
+        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, accentColor) else null
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -158,7 +160,7 @@ fun MultiSelectAppCard(app: com.daisyforgaming.ui.models.AppInfo, isSelected: Bo
                 Text(text = app.packageName, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
             }
             if (isSelected) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ElectricCyan)
+                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = accentColor)
             }
         }
     }

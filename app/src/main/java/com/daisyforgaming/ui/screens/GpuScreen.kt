@@ -21,6 +21,7 @@ import com.daisyforgaming.ui.theme.DarkSurface
 
 @Composable
 fun GpuScreen(viewModel: MainViewModel) {
+    val accentColor = MaterialTheme.colorScheme.primary
     val gpuConservative by viewModel.gpuConservative.collectAsState()
     var showTooltip by remember { mutableStateOf(false) }
 
@@ -44,7 +45,7 @@ fun GpuScreen(viewModel: MainViewModel) {
                                 Text(
                                     text = "GPU CONSERVATIVE",
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = ElectricCyan
+                                    color = accentColor
                                 )
                                 IconButton(onClick = { showTooltip = !showTooltip }) {
                                     Icon(Icons.Default.Info, contentDescription = "Info", tint = Color.Gray)

@@ -1,5 +1,6 @@
 package com.daisyforgaming.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -7,6 +8,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.daisyforgaming.ui.theme.ElectricCyan
 
 @Composable
 fun GlowSlider(
@@ -22,11 +23,13 @@ fun GlowSlider(
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float> = 0f..255f,
     modifier: Modifier = Modifier,
-    accentColor: Color = ElectricCyan
+    accentColor: Color = MaterialTheme.colorScheme.primary
 ) {
     var isDragging by remember { mutableStateOf(false) }
     val thumbScale by animateFloatAsState(if (isDragging) 1.5f else 1.0f, label = "thumbScale")
     
+    val animatedAccentColor by animateColorAsState(targetValue = accentColor, label = "sliderAccent")
+
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
@@ -43,7 +46,7 @@ fun GlowSlider(
                 .fillMaxWidth()
                 .height(4.dp)
                 .clip(CircleShape)
-                .background(Color.DarkGray)
+                .background(Color.DarkGray.copy(alpha = 0.5f))
         )
         
         // Active Track (drawn on canvas for simplicity)
@@ -65,7 +68,7 @@ fun GlowSlider(
         }) {
             // Draw active track
             drawLine(
-                color = accentColor,
+                color = animatedAccentColor,
                 start = androidx.compose.ui.geometry.Offset(0f, size.height / 2),
                 end = androidx.compose.ui.geometry.Offset(position, size.height / 2),
                 strokeWidth = 4.dp.toPx()
@@ -73,13 +76,13 @@ fun GlowSlider(
 
             // Draw thumb glow
             drawCircle(
-                color = accentColor.copy(alpha = 0.2f),
+                color = animatedAccentColor.copy(alpha = 0.2f),
                 radius = (12.dp * thumbScale).toPx(),
                 center = androidx.compose.ui.geometry.Offset(position, size.height / 2)
             )
             // Draw thumb
             drawCircle(
-                color = accentColor,
+                color = animatedAccentColor,
                 radius = (8.dp * thumbScale).toPx(),
                 center = androidx.compose.ui.geometry.Offset(position, size.height / 2)
             )

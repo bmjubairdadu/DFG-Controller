@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 15,
-  "latest_version_name": "1.9.0",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.9.0/DFG-Controler.apk",
-  "sha256": "6E029DE3F3098DEA463303956FC23C32213F5F40EDCF3907976DAF429FD7E119",
-  "changelog": "Upgraded auto-update mechanism with streaming checksum verification. Switched to version 1.9.0. Cleaned up old GitHub releases. Performance optimizations and UI fixes.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.9.0",
-  "mandatory": false
+  "latest_version_code": 16,
+  "latest_version_name": "1.9.1",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.9.1/DFG-Controler.apk",
+  "sha256": "2A1C51A1288460EE073173034D9420A2C66650ECD3405704A07342C86ED2D0CE",
+  "changelog": "Released the high-performance UI/UX overhaul. Features dynamic theme switching (Cyan, Red, Green, Purple, Orange), premium bouncy animations, and enhanced kernel diagnostics.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.9.1",
+  "mandatory": true
 }

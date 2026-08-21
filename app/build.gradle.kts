@@ -14,8 +14,8 @@ android {
         applicationId = "com.daisyforgaming"
         minSdk = 26
         targetSdk = 37
-        versionCode = 15
-        versionName = "1.9.0"
+        versionCode = 16
+        versionName = "1.9.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

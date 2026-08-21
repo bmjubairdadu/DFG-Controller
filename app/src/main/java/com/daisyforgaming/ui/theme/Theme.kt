@@ -9,21 +9,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = ElectricCyan,
-    onPrimary = DarkBackground,
-    primaryContainer = ElectricCyanGlow,
-    onPrimaryContainer = ElectricCyan,
-    background = DarkBackground,
-    onBackground = Color.White,
-    surface = DarkSurface,
-    onSurface = Color.White,
-    surfaceVariant = Color(0xFF222733),
-    onSurfaceVariant = Color(0xFFB0BEC5),
-    error = ErrorRed,
-    onError = DarkBackground
-)
-
 @Composable
 fun DFGControllerTheme(
     accentColor: Color = ElectricCyan,

@@ -62,7 +62,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.daisyforgaming.ACTION_APPLY_PROFILE" />
+                <action android:name="com.dfgcontroller.ACTION_APPLY_PROFILE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

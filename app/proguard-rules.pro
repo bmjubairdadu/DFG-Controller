@@ -29,7 +29,7 @@
 -keep interface com.topjohnwu.superuser.** { *; }
 
 # Keep our models if used for serialization/reflection
--keep class com.daisyforgaming.ui.models.** { *; }
+-keep class com.dfgcontroller.ui.models.** { *; }
 
 # Obfuscate everything else
 -repackageclasses ''

@@ -1,40 +1,30 @@
-# DFG Controller
+# DFG Controller 2.0 (Premium)
 
-Android application to control the **DaisyForGaming** (DFG) kernel on Mi A2 Lite (Daisy).
+The ultimate performance control center for the **DaisyForGaming** (DFG) kernel on Mi A2 Lite (Daisy).
 
-## Features
-- **Profiles**: One-tap apply for Performance, Balanced, and Battery presets.
-- **Custom Tunables**: Adjust CPU frequencies, governors, I/O schedulers, and more.
-- **Thermal Monitoring**: Real-time temperature display with safety locks for high-performance modes.
-- **Logs & Diagnostics**: View live kernel logs (`dmesg`) and export them for debugging.
-- **Homescreen Widget**: Quick profile switching directly from your home screen.
-- **Persistence**: Re-applies settings after reboot via WorkManager.
-- **Safety**: Automatically blocks unsafe overrides if critical temperatures are reached.
+## Version 2.0 Improvements
+- **New Package Identity**: Migrated to `com.dfgcontroller`.
+- **Cyberpunk UI Engine**: Fully customizable accent colors (Cyan, Red, Green, Purple, Orange, Pink) with neon glow effects.
+- **Premium Splash Animation**: Futuristic launcher sequence with logo and animated app name.
+- **Deep Shell Integration**: Rebuilt `ShellManager` with better error handling, fallback support, and SELinux permissive auto-tuning.
+- **Enhanced Diagnostics**: Real-time DFG kernel interface status reporting.
 
-## Kernel Compatibility
-This app is specifically designed for the DFG kernel which exposes nodes under `/sys/devices/platform/dfg/`.
-- `cpu_min_freq` / `cpu_max_freq`: Frequency control.
-- `governor`: Scaling governor selection.
-- `thermal_status`: Real-time temperature reporting.
-- `boost_ms`: Input boost duration.
+## Key Features
+- **Intelligent Profiles**: One-tap apply for Performance, Balanced, and Battery presets.
+- **Custom Tunables**: Precise control over CPU frequencies, governors, and I/O schedulers.
+- **Thermal Safety**: Automatic blocking of unsafe overrides if the device overheats.
+- **Kernel Logs**: Built-in `dmesg` viewer to monitor kernel behavior live.
+- **Profile Widget**: Toggle your kernel state directly from the home screen.
 
-## Root & Magisk Instructions
-For full control, root access is required.
-1. Install **Magisk** on your device.
-2. Grant root access to **DFG Controller** when prompted.
-3. (Optional) If the kernel requires specific SELinux permissions, ensure you are using a compatible Magisk module or set SELinux to Permissive (not recommended for daily use).
+## Installation & Root
+1. **Grant Root**: The app requires Magisk/KSU for full functionality.
+2. **DFG Kernel**: Designed specifically for kernels exposing `/sys/devices/platform/dfg/`.
+3. **SELinux**: The app attempts to set SELinux to Permissive for node access. If nodes still don't show, verify your kernel build.
 
-**Non-Root Mode**: The app will run in read-only mode, allowing you to monitor status but not change settings.
-
-## Security
-- All sysfs writes are validated against safe ranges.
-- Thermal throttle check: Performance profiles are blocked if the device is above 60°C.
-- No sensitive data or root credentials are stored.
-
-## Building
-- Open in Android Studio.
-- Ensure NDK is installed for native optimizations.
-- Run `./gradlew assembleDebug` to build the APK.
+## Build Instructions
+1. Open in Android Studio (Ladybug or newer).
+2. Sync Gradle.
+3. Run `./gradlew assembleRelease` for the optimized premium build.
 
 ## License
 MIT License.

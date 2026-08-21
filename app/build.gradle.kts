@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.daisyforgaming"
+    namespace = "com.dfgcontroller"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.daisyforgaming"
+        applicationId = "com.dfgcontroller"
         minSdk = 26
         targetSdk = 37
-        versionCode = 16
-        versionName = "1.9.1"
+        versionCode = 17
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -27,7 +27,11 @@ android {
     buildTypes {
         debug {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -104,7 +108,7 @@ afterEvaluate {
     publishing {
         publications {
             create<MavenPublication>("debug") {
-                groupId = "com.daisyforgaming"
+                groupId = "com.dfgcontroller"
                 artifactId = "dfg-controller"
                 version = "1.0.1"
 

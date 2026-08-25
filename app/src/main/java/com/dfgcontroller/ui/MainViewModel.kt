@@ -189,28 +189,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         checkIntegrity()
         viewModelScope.launch {
-            // Sequential and safe initialization
+            // Check for root availability first
             val root = ShellManager.isRootAvailable()
             _isRootAvailable.value = root
             
             if (root) {
-                // Wait for shell to stabilize
-                delay(2000)
+                // Wait briefly for shell stability
+                delay(1000)
                 
-                // Minimal check for legacy
+                // Essential kernel capability check
                 ShellManager.checkLegacyStatus()
                 _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
                 
+                // Check if this is the first time the app is getting root
                 val firstRun = repository.firstRun.first()
                 _isFirstRun.value = firstRun
                 
+                // Read current kernel state WITHOUT writing anything
                 loadInitialData()
                 
-                if (!firstRun) {
-                    applySavedProfile()
-                } else {
-                    Log.i("MainViewModel", "First run: Skipping auto-apply for safety.")
-                }
+                // SAFE START: Never auto-apply profiles on boot or startup in this build.
+                // This ensures that if a setting caused a crash, the user can recover.
+                Log.i("MainViewModel", "System initialized in Safe Mode. Automatic profile application disabled.")
                 
                 observeBypassSettings()
                 observeNewSettings()

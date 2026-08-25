@@ -29,13 +29,16 @@ object ShellManager {
 
     suspend fun writeSysfs(path: String, value: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val result = Shell.cmd("echo $value > $path").exec()
+            if (value.isBlank() || path.isBlank()) return@withContext false
+            
+            // Use quotes and handle potential special characters
+            val result = Shell.cmd("echo \"$value\" > \"$path\"").exec()
             if (!result.isSuccess) {
-                val check = Shell.cmd("test -e $path").exec()
+                val check = Shell.cmd("[ -e \"$path\" ]").exec()
                 if (!check.isSuccess) {
                     Log.w("ShellManager", "Path does not exist: $path")
                 } else {
-                    Log.e("ShellManager", "Failed to write to $path: ${result.err.joinToString("\n")}")
+                    Log.e("ShellManager", "Failed to write to $path (Code: ${result.code})")
                 }
             }
             result.isSuccess
@@ -47,12 +50,14 @@ object ShellManager {
 
     suspend fun readSysfs(path: String, fallback: String? = null): String? = withContext(Dispatchers.IO) {
         try {
-            var result = Shell.cmd("cat $path").exec()
+            if (path.isBlank()) return@withContext null
+            
+            var result = Shell.cmd("cat \"$path\"").exec()
             if (result.isSuccess) {
                 result.out.firstOrNull()?.trim()
-            } else if (fallback != null) {
+            } else if (fallback != null && fallback.isNotBlank()) {
                 Log.i("ShellManager", "Primary path failed, trying fallback: $fallback")
-                result = Shell.cmd("cat $fallback").exec()
+                result = Shell.cmd("cat \"$fallback\"").exec()
                 if (result.isSuccess) result.out.firstOrNull()?.trim() else null
             } else {
                 null

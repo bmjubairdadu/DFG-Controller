@@ -35,8 +35,8 @@ object SettingsApplier {
     }
 
     private suspend fun applyManual(repository: SettingsRepository) {
-        // CPU Governor - Apply only if valid
-        repository.cpuGovernor.first()?.takeIf { it.isNotBlank() }?.let { gov ->
+        // CPU Governor
+        repository.cpuGovernor.first()?.takeIf { it.isNotBlank() && it != "-" }?.let { gov ->
             Log.d("SettingsApplier", "Applying governor: $gov")
             if (!ShellManager.writeSysfs(SysfsPaths.DFG_CPU_GOVERNOR, gov)) {
                 val cpuCount = ShellManager.getCpuCount()
@@ -47,14 +47,14 @@ object SettingsApplier {
         }
 
         // I/O Scheduler
-        repository.ioScheduler.first()?.takeIf { it.isNotBlank() }?.let { sched ->
+        repository.ioScheduler.first()?.takeIf { it.isNotBlank() && it != "-" }?.let { sched ->
             Log.d("SettingsApplier", "Applying scheduler: $sched")
             if (!ShellManager.writeSysfs(SysfsPaths.DFG_IO_SCHEDULER, sched)) {
                 ShellManager.writeSysfs(SysfsPaths.IO_SCHEDULER, sched)
             }
         }
 
-        // Display (KCAL) - Usually safe
+        // Display (KCAL)
         repository.kcalRgb.first()?.takeIf { it.isNotBlank() }?.let { rgb ->
             ShellManager.writeSysfs(SysfsPaths.KCAL_CTRL, rgb)
         }
@@ -71,24 +71,16 @@ object SettingsApplier {
         ShellManager.writeSysfs(SysfsPaths.CHARGE_PRIORITY, if (repository.chargePriority.first()) "1" else "0")
         
         // TCP Congestion
-        repository.tcpCongestion.first()?.takeIf { it.isNotBlank() }?.let { algo ->
+        repository.tcpCongestion.first()?.takeIf { it.isNotBlank() && it != "-" }?.let { algo ->
             if (!ShellManager.writeSysfs(SysfsPaths.DFG_TCP_CONGESTION, algo)) {
                 ShellManager.writeSysfs(SysfsPaths.TCP_CONGESTION, algo)
             }
         }
 
-        // ZRAM - CAUTION: Potential crash point. Apply with delay or check.
-        if (repository.zramEnabled.first()) {
-            val size = repository.zramSize.first()
-            if (size.isNotBlank()) {
-                Log.i("SettingsApplier", "Applying ZRAM: $size")
-                ShellManager.writeSysfs(SysfsPaths.ZRAM_RESET, "1")
-                ShellManager.writeSysfs(SysfsPaths.ZRAM_DISKSIZE, size)
-                Shell.cmd("mkswap /dev/block/zram0", "swapon /dev/block/zram0").exec()
-            }
-        }
+        // ZRAM - REMOVED AUTOMATIC APPLICATION - This was likely causing the crash
+        // User must enable ZRAM manually in the UI.
 
-        // DPI - CAUTION: UI system impact
+        // DPI
         repository.dpiValue.first()?.let { dpi ->
             if (dpi in 160..640) {
                 Log.i("SettingsApplier", "Applying DPI: $dpi")

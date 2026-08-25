@@ -6,13 +6,22 @@ object SysfsPaths {
     const val CPU_BASE = "/sys/devices/system/cpu/"
     const val CPU_AVAILABLE_FREQ = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies"
     
-    // DFG Specific (DaisyForGaming Kernel)
+    // DFG Specific (DaisyForGaming Kernel) - Unified API
     const val DFG_BASE = "/sys/devices/platform/dfg/"
+    const val DFG_PROFILE = "${DFG_BASE}profile"
+    const val DFG_CPU_GOVERNOR = "${DFG_BASE}cpu_governor"
+    const val DFG_IO_SCHEDULER = "${DFG_BASE}io_scheduler"
+    const val DFG_TCP_CONGESTION = "${DFG_BASE}tcp_congestion"
+    const val DFG_DYN_FSYNC = "${DFG_BASE}dyn_fsync"
+    const val DFG_GAMING_CHARGE = "${DFG_BASE}gaming_charge"
+    
+    // Legacy DFG / Component nodes
     const val CPU_MIN_FREQ = "${DFG_BASE}cpu_min_freq"
     const val CPU_MAX_FREQ = "${DFG_BASE}cpu_max_freq"
     const val CPU_GOVERNOR = "${DFG_BASE}governor"
     const val THERMAL_STATUS = "${DFG_BASE}thermal_status"
     const val BOOST_MS = "${DFG_BASE}boost_ms"
+    const val GAME_MODE = "${DFG_BASE}game_mode"
 
     // Standard Fallbacks
     const val FALLBACK_GOVERNOR = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
@@ -41,8 +50,8 @@ object SysfsPaths {
     // Misc
     const val WAKELOCKS = "/proc/wakelocks"
     const val TCP_CONGESTION = "/proc/sys/net/ipv4/tcp_congestion_control"
-    const val GAME_MODE = "/sys/devices/platform/dfg/game_mode"
     const val IO_SCHEDULER = "/sys/block/mmcblk0/queue/scheduler"
+    const val THERMAL_ZONE = "/sys/class/thermal/thermal_zone0/temp"
     
     // Smoothness
     const val TOUCH_BOOST_ENABLED = "/sys/module/input_boost/parameters/enabled"

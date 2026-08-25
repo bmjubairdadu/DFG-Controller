@@ -28,6 +28,7 @@ class ProfileWorker(
         val profileManager = ProfileManager(rootManager)
         
         return if (profileManager.applyProfile(profile)) {
+            repository.saveCurrentProfile(profileName)
             ListenableWorker.Result.success()
         } else {
             ListenableWorker.Result.retry()

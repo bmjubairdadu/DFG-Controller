@@ -7,12 +7,19 @@ import android.util.Log
 
 object ShellManager {
 
+    private var _isLegacyKernel: Boolean? = null
+
     suspend fun isRootAvailable(): Boolean = withContext(Dispatchers.IO) {
         try {
             val shell = Shell.getShell()
             if (shell.isRoot) {
-                // Try to set SELinux to permissive for debugging/troubleshooting
-                Shell.cmd("setenforce 0").exec()
+                // Check for unified API
+                _isLegacyKernel = !Shell.cmd("test -e ${SysfsPaths.DFG_BASE}profile").exec().isSuccess
+                
+                // Try to set SELinux to permissive for debugging/troubleshooting if nodes inaccessible
+                if (_isLegacyKernel == true) {
+                    Shell.cmd("setenforce 0").exec()
+                }
                 true
             } else {
                 false
@@ -23,11 +30,15 @@ object ShellManager {
         }
     }
 
+    suspend fun isLegacyKernelDetected(): Boolean {
+        if (_isLegacyKernel == null) isRootAvailable()
+        return _isLegacyKernel ?: true
+    }
+
     suspend fun writeSysfs(path: String, value: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val result = Shell.cmd("echo $value > $path").exec()
             if (!result.isSuccess) {
-                // Try with fallback logic or check existence
                 val check = Shell.cmd("test -e $path").exec()
                 if (!check.isSuccess) {
                     Log.w("ShellManager", "Path does not exist: $path")

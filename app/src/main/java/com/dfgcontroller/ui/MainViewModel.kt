@@ -138,6 +138,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _isThermalCritical = MutableStateFlow(false)
     val isThermalCritical: StateFlow<Boolean> = _isThermalCritical.asStateFlow()
 
+    private val _isLegacyKernel = MutableStateFlow(false)
+    val isLegacyKernel: StateFlow<Boolean> = _isLegacyKernel.asStateFlow()
+
+    private val _availableSchedulers = MutableStateFlow<List<String>>(emptyList())
+    val availableSchedulers: StateFlow<List<String>> = _availableSchedulers.asStateFlow()
+
+    private val _gamingChargeEnabled = MutableStateFlow(false)
+    val gamingChargeEnabled: StateFlow<Boolean> = _gamingChargeEnabled.asStateFlow()
+
     private val _kernelLogs = MutableStateFlow<List<String>>(emptyList())
     val kernelLogs: StateFlow<List<String>> = _kernelLogs.asStateFlow()
 
@@ -167,6 +176,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _updateStatus = MutableStateFlow<String?>(null)
     val updateStatus: StateFlow<String?> = _updateStatus.asStateFlow()
 
+    private val _kernelUpdateVariant = MutableStateFlow<com.dfgcontroller.core.KernelVariant?>(null)
+    val kernelUpdateVariant: StateFlow<com.dfgcontroller.core.KernelVariant?> = _kernelUpdateVariant.asStateFlow()
+
+    private val _kernelUpdateStatus = MutableStateFlow<String?>(null)
+    val kernelUpdateStatus: StateFlow<String?> = _kernelUpdateStatus.asStateFlow()
+
     init {
         checkIntegrity()
         checkRoot()
@@ -175,7 +190,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         observeBypassSettings()
         observeNewSettings()
         startMemoryPolling()
+        startLogPolling()
         checkForUpdates()
+        checkForKernelUpdates()
+    }
+
+    fun checkForKernelUpdates() {
+        viewModelScope.launch {
+            _kernelUpdateVariant.value = com.dfgcontroller.core.KernelUpdateManager.checkForUpdate()
+        }
+    }
+
+    fun startKernelUpdate(context: Context) {
+        _kernelUpdateVariant.value?.let { variant ->
+            viewModelScope.launch {
+                com.dfgcontroller.core.KernelUpdateManager.downloadKernel(context, variant) { status ->
+                    _kernelUpdateStatus.value = status
+                }
+            }
+        }
+    }
+
+    private fun startLogPolling() {
+        viewModelScope.launch {
+            while (true) {
+                refreshKernelLogs()
+                delay(10.seconds)
+            }
+        }
     }
 
     fun checkForUpdates() {
@@ -258,13 +300,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _memoryStats.value = MemoryMonitor.getStats()
                 _autoFastChargeActive.value = (ShellManager.readSysfs(SysfsPaths.AUTO_FAST_CHARGE_STATUS) ?: "0") == "1"
                 
-                val temp = ShellManager.readSysfs(SysfsPaths.THERMAL_STATUS) ?: "0"
-                _thermalTemperature.value = "$temp°C"
+                val temp = ShellManager.readSysfs(SysfsPaths.THERMAL_ZONE) ?: 
+                            ShellManager.readSysfs(SysfsPaths.THERMAL_STATUS) ?: "0"
                 val tempInt = temp.toIntOrNull() ?: 0
-                _isThermalCritical.value = tempInt > 60 // Threshold for Daisy
+                val displayTemp = if (tempInt > 1000) tempInt / 1000 else tempInt
+                _thermalTemperature.value = "$displayTemp°C"
+                
+                val critical = displayTemp > 60
+                if (critical && !_isThermalCritical.value) {
+                    _isThermalCritical.value = true
+                    autoRevertSafety()
+                } else {
+                    _isThermalCritical.value = critical
+                }
 
                 delay(3.seconds)
             }
+        }
+    }
+
+    private fun autoRevertSafety() {
+        viewModelScope.launch {
+            Log.w("MainViewModel", "Thermal safety triggered! Reverting to Balanced profile.")
+            setKernelProfile(com.dfgcontroller.ui.models.KernelProfile.Balanced)
+            showStatus("Thermal safety triggered! Performance throttled.")
         }
     }
 
@@ -357,7 +416,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setTcpCongestion(algo: String) {
         viewModelScope.launch {
-            if (ShellManager.writeSysfs(SysfsPaths.TCP_CONGESTION, algo)) {
+            if (ShellManager.writeSysfs(SysfsPaths.DFG_TCP_CONGESTION, algo) ||
+                ShellManager.writeSysfs(SysfsPaths.TCP_CONGESTION, algo)) {
                 repository.saveTcpCongestion(algo)
                 _tcpCongestion.value = algo
             }
@@ -458,11 +518,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val root = ShellManager.isRootAvailable()
             _isRootAvailable.value = root
             if (root) {
+                _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
                 // Perform additional diagnostics
                 val id = Shell.cmd("id").exec()
                 Log.i("MainViewModel", "Root ID check: ${id.out.joinToString(" ")}")
                 
-                // Try to read one DFG node and log result
                 val dfgCheck = Shell.cmd("test -d ${SysfsPaths.DFG_BASE}").exec()
                 if (dfgCheck.isSuccess) {
                     Log.i("MainViewModel", "DFG Base directory found")
@@ -481,7 +541,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _kernelVersion.value = ShellManager.readSysfs(SysfsPaths.PROC_VERSION) ?: "Unknown"
             
-            _currentGovernor.value = ShellManager.readSysfs(SysfsPaths.CPU_GOVERNOR, SysfsPaths.FALLBACK_GOVERNOR) ?: "-"
+            _currentGovernor.value = ShellManager.readSysfs(SysfsPaths.DFG_CPU_GOVERNOR, SysfsPaths.FALLBACK_GOVERNOR) ?: "-"
             
             val availableGovs = ShellManager.readSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors")
             _availableGovernors.value = availableGovs?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
@@ -491,8 +551,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             
             _availableFrequencies.value = ShellManager.readSysfs(SysfsPaths.CPU_AVAILABLE_FREQ)?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
 
-            _currentScheduler.value = parseScheduler(ShellManager.readSysfs("/sys/block/mmcblk0/queue/scheduler"))
+            val schedRaw = ShellManager.readSysfs(SysfsPaths.DFG_IO_SCHEDULER, SysfsPaths.IO_SCHEDULER)
+            _currentScheduler.value = parseScheduler(schedRaw)
             
+            val availableScheds = ShellManager.readSysfs(SysfsPaths.IO_SCHEDULER)
+            _availableSchedulers.value = availableScheds?.replace("[", "")?.replace("]", "")?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+
             val kcal = ShellManager.readSysfs(SysfsPaths.KCAL_CTRL) ?: "256 256 256"
             val parts = kcal.split(" ")
             if (parts.size >= 3) {
@@ -502,11 +566,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             _kcalEnabled.value = (ShellManager.readSysfs(SysfsPaths.KCAL_ENABLE) ?: "0") == "1"
             _gpuConservative.value = (ShellManager.readSysfs(SysfsPaths.GPU_CONSERVATIVE) ?: "0") == "1"
+            
             _fastCharge.value = (ShellManager.readSysfs(SysfsPaths.FAST_CHARGE) ?: "0") == "1"
+            _gamingChargeEnabled.value = (ShellManager.readSysfs(SysfsPaths.DFG_GAMING_CHARGE) ?: "0") == "1"
+            
             _autoFastChargeActive.value = (ShellManager.readSysfs(SysfsPaths.AUTO_FAST_CHARGE_STATUS) ?: "0") == "1"
-            _tcpCongestion.value = ShellManager.readSysfs(SysfsPaths.TCP_CONGESTION) ?: "-"
+            _tcpCongestion.value = ShellManager.readSysfs(SysfsPaths.DFG_TCP_CONGESTION, SysfsPaths.TCP_CONGESTION) ?: "-"
             _availableTcpCongestions.value = ShellManager.readSysfs("/proc/sys/net/ipv4/tcp_available_congestion_control")?.split(" ") ?: listOf("cubic", "reno")
-            _dynamicFsync.value = (ShellManager.readSysfs(SysfsPaths.DYNAMIC_FSYNC) ?: "0") == "1"
+            _dynamicFsync.value = (ShellManager.readSysfs(SysfsPaths.DFG_DYN_FSYNC, SysfsPaths.DYNAMIC_FSYNC) ?: "0") == "1"
             
             refreshDpiInfo()
             _touchBoostEnabled.value = (ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_ENABLED) ?: "0") == "1"
@@ -524,9 +591,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setGamingCharge(enabled: Boolean) {
+        viewModelScope.launch {
+            if (ShellManager.writeSysfs(SysfsPaths.DFG_GAMING_CHARGE, if (enabled) "1" else "0")) {
+                _gamingChargeEnabled.value = enabled
+            }
+        }
+    }
+
     fun setDynamicFsync(enabled: Boolean) {
         viewModelScope.launch {
-            if (ShellManager.writeSysfs(SysfsPaths.DYNAMIC_FSYNC, if (enabled) "1" else "0")) {
+            if (ShellManager.writeSysfs(SysfsPaths.DFG_DYN_FSYNC, if (enabled) "1" else "0") ||
+                ShellManager.writeSysfs(SysfsPaths.DYNAMIC_FSYNC, if (enabled) "1" else "0")) {
                 _dynamicFsync.value = enabled
                 repository.saveDynamicFsync(enabled)
             }
@@ -602,6 +678,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setGovernor(gov: String) {
         viewModelScope.launch {
+            if (ShellManager.writeSysfs(SysfsPaths.DFG_CPU_GOVERNOR, gov)) {
+                _currentGovernor.value = gov
+                repository.saveCpuGovernor(gov)
+                return@launch
+            }
+            
             val cpuCount = ShellManager.getCpuCount()
             var success = true
             for (i in 0 until cpuCount) {
@@ -618,7 +700,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setScheduler(sched: String) {
         viewModelScope.launch {
-            if (ShellManager.writeSysfs(SysfsPaths.IO_SCHEDULER, sched)) {
+            if (ShellManager.writeSysfs(SysfsPaths.DFG_IO_SCHEDULER, sched) ||
+                ShellManager.writeSysfs(SysfsPaths.IO_SCHEDULER, sched)) {
                 _currentScheduler.value = sched
                 repository.saveIoScheduler(sched)
             }

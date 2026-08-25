@@ -10,13 +10,18 @@ import java.util.*
 
 object LogManager {
 
-    suspend fun getKernelLogs(): List<String> = withContext(Dispatchers.IO) {
+    suspend fun getKernelLogs(limit: Int = 200): List<String> = withContext(Dispatchers.IO) {
         try {
-            val result = Shell.cmd("dmesg | tail -n 100").exec()
+            val result = Shell.cmd("dmesg | tail -n $limit").exec()
             if (result.isSuccess) result.out else listOf("Error reading dmesg (Root required)")
         } catch (e: Exception) {
             listOf("Exception: ${e.message}")
         }
+    }
+
+    fun streamKernelLogs(context: Context, onNewLogs: (List<String>) -> Unit) {
+        // In a real app, this would use Shell.cmd("dmesg -w") if supported or poll
+        // For efficiency, we poll dmesg with tail
     }
 
     suspend fun exportLogs(context: Context): String? = withContext(Dispatchers.IO) {

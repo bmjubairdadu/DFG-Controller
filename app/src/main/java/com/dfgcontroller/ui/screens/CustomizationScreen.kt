@@ -27,12 +27,18 @@ import com.dfgcontroller.ui.theme.*
 fun CustomizationScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val currentTheme by viewModel.themeColorName.collectAsState()
     
-    val themes = listOf("Cyan", "Red", "Green", "Purple", "Orange")
+    val themes = listOf("Cyan", "Red", "Green", "Purple", "Orange", "Pink")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("CUSTOMIZATION", color = MaterialTheme.colorScheme.primary) },
+                title = { 
+                    Text(
+                        "CUSTOMIZATION", 
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = OrbitronFamily
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.Gray)
@@ -58,9 +64,10 @@ fun CustomizationScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     themes.forEach { theme ->
                         ColorOption(
@@ -76,7 +83,8 @@ fun CustomizationScreen(viewModel: MainViewModel, onBack: () -> Unit) {
             item {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = DarkSurface),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.neonGlow(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -87,12 +95,14 @@ fun CustomizationScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Button(
                             onClick = {},
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .neonGlow(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
                             Text("Sample Button", color = DarkBackground)
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         val infiniteTransition = rememberInfiniteTransition(label = "sample")
                         val progress by infiniteTransition.animateFloat(
                             initialValue = 0f,
@@ -105,7 +115,10 @@ fun CustomizationScreen(viewModel: MainViewModel, onBack: () -> Unit) {
                         )
                         LinearProgressIndicator(
                             progress = { progress },
-                            modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(CircleShape),
                             color = MaterialTheme.colorScheme.primary,
                             trackColor = Color.DarkGray,
                         )

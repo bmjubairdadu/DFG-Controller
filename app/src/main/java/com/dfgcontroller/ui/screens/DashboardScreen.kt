@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +22,11 @@ import kotlin.time.Duration.Companion.milliseconds
 import com.dfgcontroller.ui.MainViewModel
 import com.dfgcontroller.ui.components.AnimatedKernelSwitch
 import com.dfgcontroller.ui.components.DashboardHeroCard
-import com.dfgcontroller.ui.theme.ElectricCyan
-import com.dfgcontroller.ui.theme.DarkSurface
 import com.dfgcontroller.ui.theme.DarkBackground
+import com.dfgcontroller.ui.theme.DarkSurface
+import com.dfgcontroller.ui.theme.ElectricCyan
 import com.dfgcontroller.ui.theme.ErrorRed
+import com.dfgcontroller.ui.theme.SuccessGreen
 
 @Composable
 fun DashboardScreen(viewModel: MainViewModel) {
@@ -36,10 +38,14 @@ fun DashboardScreen(viewModel: MainViewModel) {
     val isApplyingProfile by viewModel.isApplyingProfile.collectAsState()
     val thermalTemperature by viewModel.thermalTemperature.collectAsState()
     val isThermalCritical by viewModel.isThermalCritical.collectAsState()
+    val isLegacyKernel by viewModel.isLegacyKernel.collectAsState()
     val autoFastChargeActive by viewModel.autoFastChargeActive.collectAsState()
     val currentProfileName by viewModel.currentProfileName.collectAsState()
     val updateManifest by viewModel.updateManifest.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
+    
+    val kernelUpdateVariant by viewModel.kernelUpdateVariant.collectAsState()
+    val kernelUpdateStatus by viewModel.kernelUpdateStatus.collectAsState()
 
     val context = LocalContext.current
 
@@ -69,6 +75,30 @@ fun DashboardScreen(viewModel: MainViewModel) {
                         thermalTemp = thermalTemperature,
                         isThermalCritical = isThermalCritical
                     )
+                }
+
+                item {
+                    if (isLegacyKernel) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f)),
+                            shape = RoundedCornerShape(12.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, ErrorRed.copy(alpha = 0.5f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Warning, contentDescription = null, tint = ErrorRed)
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    "LEGACY KERNEL DETECTED: Some premium features and unified API nodes are unavailable.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = ErrorRed
+                                )
+                            }
+                        }
+                    }
                 }
 
                 item {
@@ -152,6 +182,75 @@ fun DashboardScreen(viewModel: MainViewModel) {
                 onDismiss = { viewModel.dismissUpdate() },
                 onUpdate = { viewModel.startUpdate(context) }
             )
+        }
+
+        kernelUpdateVariant?.let { variant ->
+            KernelUpdateDialog(
+                variant = variant,
+                status = kernelUpdateStatus,
+                accentColor = accentColor,
+                onUpdate = { viewModel.startKernelUpdate(context) }
+            )
+        }
+    }
+}
+
+@Composable
+fun KernelUpdateDialog(
+    variant: com.dfgcontroller.core.KernelVariant,
+    status: String?,
+    accentColor: Color,
+    onUpdate: () -> Unit
+) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(24.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, accentColor)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = "KERNEL UPDATE AVAILABLE",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = accentColor
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "DaisyForGaming ${variant.version_name}",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White
+                )
+                
+                if (status != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = status, 
+                        color = if (status.contains("Verified")) SuccessGreen else accentColor, 
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    
+                    if (status.contains("Verified")) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Please reboot to TWRP to flash the ZIP manually.",
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    Button(
+                        onClick = onUpdate,
+                        colors = ButtonDefaults.buttonColors(containerColor = accentColor),
+                        enabled = (status == null || status.contains("Error"))
+                    ) {
+                        Text("DOWNLOAD & VERIFY", color = DarkBackground)
+                    }
+                }
+            }
         }
     }
 }

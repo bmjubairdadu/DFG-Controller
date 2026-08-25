@@ -27,6 +27,7 @@ import com.dfgcontroller.ui.theme.DarkSurface
 import com.dfgcontroller.ui.theme.ElectricCyan
 import com.dfgcontroller.ui.theme.ErrorRed
 import com.dfgcontroller.ui.theme.SuccessGreen
+import com.dfgcontroller.ui.theme.neonGlow
 
 @Composable
 fun DashboardScreen(viewModel: MainViewModel) {
@@ -73,15 +74,18 @@ fun DashboardScreen(viewModel: MainViewModel) {
                         currentGovernor = currentGovernor,
                         currentScheduler = currentScheduler,
                         thermalTemp = thermalTemperature,
-                        isThermalCritical = isThermalCritical
+                        isThermalCritical = isThermalCritical,
+                        modifier = Modifier.neonGlow(accentColor.copy(alpha = 0.1f))
                     )
                 }
 
                 item {
                     if (isLegacyKernel) {
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .neonGlow(ErrorRed.copy(alpha = 0.2f)),
+                            colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.05f)),
                             shape = RoundedCornerShape(12.dp),
                             border = androidx.compose.foundation.BorderStroke(1.dp, ErrorRed.copy(alpha = 0.5f))
                         ) {
@@ -89,10 +93,24 @@ fun DashboardScreen(viewModel: MainViewModel) {
                                 modifier = Modifier.padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Warning, contentDescription = null, tint = ErrorRed)
+                                val infiniteTransition = rememberInfiniteTransition(label = "warning")
+                                val warnAlpha by infiniteTransition.animateFloat(
+                                    initialValue = 0.4f,
+                                    targetValue = 1f,
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(800),
+                                        repeatMode = RepeatMode.Reverse
+                                    ),
+                                    label = "warnAlpha"
+                                )
+                                Icon(
+                                    Icons.Default.Warning, 
+                                    contentDescription = null, 
+                                    tint = ErrorRed.copy(alpha = warnAlpha)
+                                )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
-                                    "LEGACY KERNEL DETECTED: Some premium features and unified API nodes are unavailable.",
+                                    "LEGACY KERNEL DETECTED: Unified API nodes unavailable.",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = ErrorRed
                                 )

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.dfgcontroller.BuildConfig
@@ -36,18 +37,26 @@ object UpdateManager {
 
     suspend fun checkForUpdate(): UpdateManifest? = withContext(Dispatchers.IO) {
         try {
+            Log.d("UpdateManager", "Checking for updates at $UPDATE_JSON_URL")
             val request = Request.Builder().url(UPDATE_JSON_URL).build()
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext null
+                if (!response.isSuccessful) {
+                    Log.e("UpdateManager", "Update check failed with code: ${response.code}")
+                    return@withContext null
+                }
                 val body = response.body.string()
+                Log.d("UpdateManager", "Update manifest received: $body")
                 val manifest = json.decodeFromString<UpdateManifest>(body)
                 if (manifest.latest_version_code > BuildConfig.VERSION_CODE) {
+                    Log.i("UpdateManager", "New version available: ${manifest.latest_version_name}")
                     manifest
                 } else {
+                    Log.i("UpdateManager", "App is up to date (Code: ${BuildConfig.VERSION_CODE})")
                     null
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("UpdateManager", "Exception during update check", e)
             null
         }
     }

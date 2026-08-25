@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 17,
-  "latest_version_name": "2.0.0",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v2.0.0/DFG-Controler.apk",
-  "sha256": "2E0F46D6F8A2FBFB855173446779D095108A9EAAA9E2EDFE0A054520279C39F8",
-  "changelog": "V2.0 PREMIUM RELEASE. New identity: com.dfgcontroller. Futuristic Cyberpunk UI with neon glow. Upgraded splash animation with app name. Improved Root Shell engine with SELinux permissive auto-tuning and fallback support for standard kernel nodes.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v2.0.0",
-  "mandatory": true
+  "latest_version_code": 18,
+  "latest_version_name": "2.1.0",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.0/DFG-Controller.apk",
+  "sha256": "SKIP",
+  "changelog": "V2.1 PREMIUM. Improved UI with Root access animations. Fixed auto-update system. Animated launcher transitions.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.0",
+  "mandatory": false
 }

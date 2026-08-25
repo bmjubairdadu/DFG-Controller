@@ -74,7 +74,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeName by viewModel.themeColorName.collectAsState()
             val accentColor = com.dfgcontroller.ui.theme.getThemeColor(themeName)
-            var showCustomSplash by remember { mutableStateOf(true) }
 
             DFGControllerTheme(accentColor = accentColor) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -89,21 +88,18 @@ class MainActivity : ComponentActivity() {
                             MainViewModel.IntegrityStatus.VALID -> {
                                 val isRootAvailable by viewModel.isRootAvailable.collectAsState()
                                 when (isRootAvailable) {
-                                    null -> { /* Loading state */ }
-                                    false -> MainScaffold(viewModel)
+                                    null -> {
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                            CircularProgressIndicator(color = accentColor)
+                                        }
+                                    }
+                                    false -> RootAccessScreen(onRetry = { viewModel.retryRoot() })
                                     true -> MainScaffold(viewModel)
                                 }
                             }
                             MainViewModel.IntegrityStatus.INVALID_SIGNATURE -> IntegrityErrorScreen("App signature verification failed.")
                             MainViewModel.IntegrityStatus.DEBUGGER_CONNECTED -> IntegrityErrorScreen("Debugger detected.")
                         }
-                    }
-
-                    if (showCustomSplash) {
-                        CustomSplashScreen(
-                            accentColor = accentColor,
-                            onFinish = { showCustomSplash = false }
-                        )
                     }
                 }
             }
@@ -124,60 +120,6 @@ class MainActivity : ComponentActivity() {
                 if (gamesModeActive) {
                     startForegroundService(gameIntent)
                 } else stopService(gameIntent)
-            }
-        }
-    }
-}
-
-@Composable
-fun CustomSplashScreen(accentColor: Color, onFinish: () -> Unit) {
-    var visible by remember { mutableStateOf(false) }
-    var textVisible by remember { mutableStateOf(false) }
-    
-    LaunchedEffect(Unit) {
-        visible = true
-        kotlinx.coroutines.delay(500)
-        textVisible = true
-        kotlinx.coroutines.delay(2000)
-        visible = false
-        kotlinx.coroutines.delay(500)
-        onFinish()
-    }
-
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(animationSpec = tween(500)),
-        exit = fadeOut(animationSpec = tween(500))
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(DarkBackground),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                androidx.compose.foundation.Image(
-                    painter = androidx.compose.ui.res.painterResource(id = R.drawable.app_logo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                AnimatedVisibility(
-                    visible = textVisible,
-                    enter = slideInVertically { 20 } + fadeIn()
-                ) {
-                    Text(
-                        text = "DFG CONTROLLER",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = accentColor,
-                        fontFamily = com.dfgcontroller.ui.theme.OrbitronFamily,
-                        letterSpacing = 4.sp
-                    )
-                }
             }
         }
     }

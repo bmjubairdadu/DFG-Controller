@@ -10,18 +10,33 @@ object SettingsApplier {
     suspend fun applyAll(context: Context) {
         val repository = SettingsRepository(context)
         
-        // Root access is required, libsu handles shell initiation
         if (!ShellManager.isRootAvailable()) return
 
+        // Unified Profile
+        val currentProfile = repository.currentProfile.first()
+        if (currentProfile != "Balanced" || ShellManager.isLegacyKernelDetected()) {
+             // If legacy or custom needs, apply manual nodes
+             applyManual(repository)
+        } else {
+             // Unified API apply
+             ShellManager.writeSysfs(SysfsPaths.DFG_PROFILE, currentProfile.lowercase())
+        }
+    }
+
+    private suspend fun applyManual(repository: SettingsRepository) {
         repository.cpuGovernor.first()?.let { gov ->
-            val cpuCount = ShellManager.getCpuCount()
-            for (i in 0 until cpuCount) {
-                ShellManager.writeSysfs(String.format(SysfsPaths.CPU_GOVERNOR_ALL, i), gov)
+            if (!ShellManager.writeSysfs(SysfsPaths.DFG_CPU_GOVERNOR, gov)) {
+                val cpuCount = ShellManager.getCpuCount()
+                for (i in 0 until cpuCount) {
+                    ShellManager.writeSysfs(String.format(SysfsPaths.CPU_GOVERNOR_ALL, i), gov)
+                }
             }
         }
 
         repository.ioScheduler.first()?.let { sched ->
-            ShellManager.writeSysfs(SysfsPaths.IO_SCHEDULER, sched)
+            if (!ShellManager.writeSysfs(SysfsPaths.DFG_IO_SCHEDULER, sched)) {
+                ShellManager.writeSysfs(SysfsPaths.IO_SCHEDULER, sched)
+            }
         }
 
         repository.kcalRgb.first()?.let { rgb ->
@@ -31,11 +46,18 @@ object SettingsApplier {
         ShellManager.writeSysfs(SysfsPaths.KCAL_ENABLE, if (repository.kcalEnabled.first()) "1" else "0")
         ShellManager.writeSysfs(SysfsPaths.GPU_CONSERVATIVE, if (repository.gpuConservative.first()) "1" else "0")
         ShellManager.writeSysfs(SysfsPaths.FAST_CHARGE, if (repository.fastCharge.first()) "1" else "0")
-        ShellManager.writeSysfs(SysfsPaths.DYNAMIC_FSYNC, if (repository.dynamicFsync.first()) "1" else "0")
+        
+        val dynFsync = if (repository.dynamicFsync.first()) "1" else "0"
+        if (!ShellManager.writeSysfs(SysfsPaths.DFG_DYN_FSYNC, dynFsync)) {
+            ShellManager.writeSysfs(SysfsPaths.DYNAMIC_FSYNC, dynFsync)
+        }
+
         ShellManager.writeSysfs(SysfsPaths.CHARGE_PRIORITY, if (repository.chargePriority.first()) "1" else "0")
         
         repository.tcpCongestion.first()?.let { algo ->
-            ShellManager.writeSysfs(SysfsPaths.TCP_CONGESTION, algo)
+            if (!ShellManager.writeSysfs(SysfsPaths.DFG_TCP_CONGESTION, algo)) {
+                ShellManager.writeSysfs(SysfsPaths.TCP_CONGESTION, algo)
+            }
         }
 
         if (repository.zramEnabled.first()) {

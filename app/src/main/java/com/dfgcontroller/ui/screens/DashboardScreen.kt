@@ -113,8 +113,12 @@ fun DashboardScreen(viewModel: MainViewModel) {
                                 Text(
                                     "LEGACY KERNEL DETECTED: Unified API nodes unavailable.",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = ErrorRed
+                                    color = ErrorRed,
+                                    modifier = Modifier.weight(1f)
                                 )
+                                TextButton(onClick = { viewModel.refreshKernelStatus() }) {
+                                    Text("REFRESH", color = ErrorRed, style = MaterialTheme.typography.labelSmall)
+                                }
                             }
                         }
                     }
@@ -459,19 +463,30 @@ fun GamingModeCard(enabled: Boolean, accentColor: Color, onToggle: (Boolean) -> 
 fun DiagnosticsCard(viewModel: MainViewModel, accentColor: Color) {
     var nodesFound by remember { mutableIntStateOf(0) }
     var totalNodes by remember { mutableIntStateOf(0) }
+    val isLegacy by viewModel.isLegacyKernel.collectAsState()
     
-    LaunchedEffect(Unit) {
-        val paths = listOf(
-            com.dfgcontroller.core.SysfsPaths.DFG_BASE,
-            com.dfgcontroller.core.SysfsPaths.CPU_GOVERNOR,
-            com.dfgcontroller.core.SysfsPaths.THERMAL_STATUS,
-            com.dfgcontroller.core.SysfsPaths.CPU_MIN_FREQ,
-            com.dfgcontroller.core.SysfsPaths.CPU_MAX_FREQ
-        )
+    LaunchedEffect(isLegacy) {
+        val paths = if (!isLegacy) {
+            listOf(
+                com.dfgcontroller.core.SysfsPaths.DFG_BASE,
+                com.dfgcontroller.core.SysfsPaths.DFG_PROFILE,
+                com.dfgcontroller.core.SysfsPaths.DFG_CPU_GOVERNOR,
+                com.dfgcontroller.core.SysfsPaths.DFG_IO_SCHEDULER,
+                com.dfgcontroller.core.SysfsPaths.DFG_TCP_CONGESTION
+            )
+        } else {
+            listOf(
+                com.dfgcontroller.core.SysfsPaths.DFG_BASE,
+                com.dfgcontroller.core.SysfsPaths.CPU_GOVERNOR,
+                com.dfgcontroller.core.SysfsPaths.THERMAL_STATUS,
+                com.dfgcontroller.core.SysfsPaths.CPU_MIN_FREQ,
+                com.dfgcontroller.core.SysfsPaths.CPU_MAX_FREQ
+            )
+        }
         totalNodes = paths.size
         var count = 0
         paths.forEach { path ->
-            if (com.topjohnwu.superuser.Shell.cmd("ls $path").exec().isSuccess) {
+            if (com.topjohnwu.superuser.Shell.cmd("[ -e \"$path\" ]").exec().isSuccess) {
                 count++
             }
         }
@@ -484,11 +499,22 @@ fun DiagnosticsCard(viewModel: MainViewModel, accentColor: Color) {
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "KERNEL INTERFACE STATUS",
-                style = MaterialTheme.typography.labelMedium,
-                color = accentColor
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = if (isLegacy) "LEGACY INTERFACE STATUS" else "UNIFIED API STATUS",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = accentColor,
+                    modifier = Modifier.weight(1f)
+                )
+                if (isLegacy) {
+                    Text(
+                        "LEGACY MODE",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = ErrorRed,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LinearProgressIndicator(
@@ -506,9 +532,12 @@ fun DiagnosticsCard(viewModel: MainViewModel, accentColor: Color) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = if (nodesFound == totalNodes) "All DFG kernel nodes detected." else "Some kernel nodes are missing. Features may be limited.",
+                text = if (nodesFound == totalNodes) {
+                    if (isLegacy) "Legacy nodes detected. Premium features limited."
+                    else "All Unified API nodes detected. Full features available."
+                } else "Some kernel nodes are missing or inaccessible.",
                 style = MaterialTheme.typography.bodySmall,
-                color = if (nodesFound == totalNodes) Color.Gray else ErrorRed
+                color = if (nodesFound == totalNodes && !isLegacy) Color.Gray else ErrorRed
             )
         }
     }

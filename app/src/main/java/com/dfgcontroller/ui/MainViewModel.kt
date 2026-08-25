@@ -222,6 +222,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun refreshKernelStatus() {
+        viewModelScope.launch {
+            _isApplyingProfile.value = true
+            ShellManager.checkLegacyStatus()
+            _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
+            loadInitialData()
+            delay(500)
+            _isApplyingProfile.value = false
+            showStatus("Kernel status refreshed.")
+        }
+    }
+
     fun completeFirstRun() {
         viewModelScope.launch {
             repository.setFirstRunCompleted()

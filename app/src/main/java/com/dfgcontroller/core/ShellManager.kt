@@ -19,11 +19,36 @@ object ShellManager {
     }
 
     suspend fun checkLegacyStatus() = withContext(Dispatchers.IO) {
-        _isLegacyKernel = !Shell.cmd("test -e ${SysfsPaths.DFG_BASE}profile").exec().isSuccess
+        try {
+            Log.d("ShellManager", "Performing kernel capability check...")
+            
+            // Check for the unified profile node - the gold standard for v2.0
+            val profileExists = Shell.cmd("[ -e \"${SysfsPaths.DFG_PROFILE}\" ]").exec().isSuccess
+            if (profileExists) {
+                Log.i("ShellManager", "Unified DFG API detected at ${SysfsPaths.DFG_PROFILE}")
+                _isLegacyKernel = false
+                return@withContext
+            }
+            
+            // Check for base directory
+            val baseExists = Shell.cmd("[ -d \"${SysfsPaths.DFG_BASE}\" ]").exec().isSuccess
+            if (baseExists) {
+                Log.w("ShellManager", "DFG directory found but 'profile' node is missing. Falling back to legacy mode.")
+                val contents = Shell.cmd("ls \"${SysfsPaths.DFG_BASE}\"").exec().out.joinToString(", ")
+                Log.d("ShellManager", "DFG directory contents: $contents")
+            } else {
+                Log.w("ShellManager", "DFG base directory NOT found. Kernel may not be DaisyForGaming.")
+            }
+
+            _isLegacyKernel = true
+        } catch (e: Exception) {
+            Log.e("ShellManager", "Kernel check failed", e)
+            _isLegacyKernel = true
+        }
     }
 
     suspend fun isLegacyKernelDetected(): Boolean {
-        if (_isLegacyKernel == null) isRootAvailable()
+        if (_isLegacyKernel == null) checkLegacyStatus()
         return _isLegacyKernel ?: true
     }
 

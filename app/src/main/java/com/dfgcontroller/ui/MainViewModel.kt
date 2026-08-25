@@ -31,7 +31,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _isRootAvailable = MutableStateFlow<Boolean?>(null)
     val isRootAvailable: StateFlow<Boolean?> = _isRootAvailable.asStateFlow()
 
-    private val _kernelVersion = MutableStateFlow("Loading...")
+    private val _kernelVersion = MutableStateFlow("Standby")
     val kernelVersion: StateFlow<String> = _kernelVersion.asStateFlow()
 
     private val _currentGovernor = MutableStateFlow("-")
@@ -189,36 +189,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         checkIntegrity()
         viewModelScope.launch {
-            // Check for root availability first
+            // DEEP SAFE INITIALIZATION: ONLY check root, do NOTHING else.
             val root = ShellManager.isRootAvailable()
             _isRootAvailable.value = root
             
             if (root) {
-                // Wait briefly for shell stability
-                delay(1000)
-                
-                // Essential kernel capability check
-                ShellManager.checkLegacyStatus()
-                _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
-                
-                // Check if this is the first time the app is getting root
-                val firstRun = repository.firstRun.first()
-                _isFirstRun.value = firstRun
-                
-                // Read current kernel state WITHOUT writing anything
-                loadInitialData()
-                
-                // SAFE START: Never auto-apply profiles on boot or startup in this build.
-                // This ensures that if a setting caused a crash, the user can recover.
-                Log.i("MainViewModel", "System initialized in Safe Mode. Automatic profile application disabled.")
-                
                 observeBypassSettings()
                 observeNewSettings()
-                startMemoryPolling()
-                startLogPolling()
                 checkForUpdates()
                 checkForKernelUpdates()
+                Log.i("MainViewModel", "Root detected. System in Standby.")
             }
+        }
+    }
+
+    fun initializeKernelInterface() {
+        viewModelScope.launch {
+            _isApplyingProfile.value = true
+            showStatus("Initializing Interface...")
+            delay(1000)
+            
+            ShellManager.checkLegacyStatus()
+            _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
+            
+            val firstRun = repository.firstRun.first()
+            _isFirstRun.value = firstRun
+            
+            loadInitialData()
+            startMemoryPolling()
+            startLogPolling()
+            
+            _isApplyingProfile.value = false
+            showStatus("System Ready.")
         }
     }
 

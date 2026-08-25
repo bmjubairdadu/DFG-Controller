@@ -14,8 +14,8 @@ android {
         applicationId = "com.dfgcontroller"
         minSdk = 26
         targetSdk = 37
-        versionCode = 20
-        versionName = "2.1.2"
+        versionCode = 21
+        versionName = "2.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

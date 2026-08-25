@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,33 +28,6 @@ import com.dfgcontroller.ui.theme.OrbitronFamily
 fun RootAccessScreen(
     onRetry: () -> Unit
 ) {
-    var startAnimation by remember { mutableStateOf(false) }
-    
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-
-    LaunchedEffect(Unit) {
-        startAnimation = true
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,88 +39,39 @@ fun RootAccessScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(32.dp)
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                // Glow effect
-                Box(
-                    modifier = Modifier
-                        .size(140.dp)
-                        .scale(scale)
-                        .clip(CircleShape)
-                        .background(ElectricCyan.copy(alpha = alpha * 0.2f))
-                )
-                
-                Image(
-                    painter = painterResource(id = R.drawable.app_logo),
-                    contentDescription = "Logo",
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                )
-            }
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.Shield,
+                contentDescription = null,
+                tint = ElectricCyan,
+                modifier = Modifier.size(80.dp)
+            )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            AnimatedVisibility(
-                visible = startAnimation,
-                enter = fadeIn() + expandVertically()
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "DFG CONTROLLER",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = ElectricCyan,
-                        fontFamily = OrbitronFamily,
-                        letterSpacing = 4.sp
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "PREMIUM EDITION",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray,
-                        fontFamily = OrbitronFamily,
-                        letterSpacing = 2.sp
-                    )
-                    
-                    Spacer(modifier = Modifier.height(32.dp))
-                    
-                    Text(
-                        text = "INITIALIZING SYSTEM...",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White,
-                        fontFamily = OrbitronFamily,
-                        letterSpacing = 1.sp
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = "Please grant Superuser permission to access kernel tunables.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 20.sp
-                    )
-                }
-            }
+            Text(
+                text = "ROOT ACCESS REQUIRED",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White,
+                fontFamily = OrbitronFamily
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = "This application requires superuser permissions to manage kernel parameters. Please grant access to continue.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(modifier = Modifier.height(48.dp))
 
             Button(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(containerColor = ElectricCyan),
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
+                modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                Text(
-                    text = "GRANT PERMISSION",
-                    color = DarkBackground,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = OrbitronFamily
-                )
+                Text("GRANT PERMISSION", color = DarkBackground, fontFamily = OrbitronFamily)
             }
         }
     }

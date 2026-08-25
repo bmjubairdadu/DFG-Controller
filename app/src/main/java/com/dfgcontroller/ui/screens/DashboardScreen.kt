@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -78,6 +79,21 @@ fun DashboardScreen(viewModel: MainViewModel) {
                         isThermalCritical = isThermalCritical,
                         modifier = Modifier.neonGlow(accentColor.copy(alpha = 0.1f))
                     )
+                }
+
+                item {
+                    if (kernelVersion == "Standby") {
+                        Button(
+                            onClick = { viewModel.initializeKernelInterface() },
+                            modifier = Modifier.fillMaxWidth().height(64.dp).neonGlow(accentColor.copy(alpha = 0.3f)),
+                            colors = ButtonDefaults.buttonColors(containerColor = accentColor),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, tint = DarkBackground)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("INITIALIZE KERNEL INTERFACE", color = DarkBackground, fontFamily = com.dfgcontroller.ui.theme.OrbitronFamily)
+                        }
+                    }
                 }
 
                 item {

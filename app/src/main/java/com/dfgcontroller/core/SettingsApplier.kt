@@ -1,7 +1,9 @@
 package com.dfgcontroller.core
 
 import android.content.Context
+import android.util.Log
 import com.dfgcontroller.data.SettingsRepository
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.flow.first
 import com.dfgcontroller.core.SysfsPaths
 
@@ -10,21 +12,32 @@ object SettingsApplier {
     suspend fun applyAll(context: Context) {
         val repository = SettingsRepository(context)
         
-        if (!ShellManager.isRootAvailable()) return
+        // Root access is required
+        if (!ShellManager.isRootAvailable()) {
+            Log.w("SettingsApplier", "Root not available, skipping application")
+            return
+        }
 
-        // Unified Profile
-        val currentProfile = repository.currentProfile.first()
-        if (currentProfile != "Balanced" || ShellManager.isLegacyKernelDetected()) {
-             // If legacy or custom needs, apply manual nodes
-             applyManual(repository)
-        } else {
-             // Unified API apply
-             ShellManager.writeSysfs(SysfsPaths.DFG_PROFILE, currentProfile.lowercase())
+        try {
+            // Unified Profile - Safest approach
+            val currentProfile = repository.currentProfile.first()
+            if (currentProfile != "Balanced" || ShellManager.isLegacyKernelDetected()) {
+                 // If legacy or custom needs, apply manual nodes with safety
+                 applyManual(repository)
+            } else {
+                 // Unified API apply
+                 Log.i("SettingsApplier", "Applying unified profile: $currentProfile")
+                 ShellManager.writeSysfs(SysfsPaths.DFG_PROFILE, currentProfile.lowercase())
+            }
+        } catch (e: Exception) {
+            Log.e("SettingsApplier", "Error during profile application", e)
         }
     }
 
     private suspend fun applyManual(repository: SettingsRepository) {
-        repository.cpuGovernor.first()?.let { gov ->
+        // CPU Governor - Apply only if valid
+        repository.cpuGovernor.first()?.takeIf { it.isNotBlank() }?.let { gov ->
+            Log.d("SettingsApplier", "Applying governor: $gov")
             if (!ShellManager.writeSysfs(SysfsPaths.DFG_CPU_GOVERNOR, gov)) {
                 val cpuCount = ShellManager.getCpuCount()
                 for (i in 0 until cpuCount) {
@@ -33,13 +46,16 @@ object SettingsApplier {
             }
         }
 
-        repository.ioScheduler.first()?.let { sched ->
+        // I/O Scheduler
+        repository.ioScheduler.first()?.takeIf { it.isNotBlank() }?.let { sched ->
+            Log.d("SettingsApplier", "Applying scheduler: $sched")
             if (!ShellManager.writeSysfs(SysfsPaths.DFG_IO_SCHEDULER, sched)) {
                 ShellManager.writeSysfs(SysfsPaths.IO_SCHEDULER, sched)
             }
         }
 
-        repository.kcalRgb.first()?.let { rgb ->
+        // Display (KCAL) - Usually safe
+        repository.kcalRgb.first()?.takeIf { it.isNotBlank() }?.let { rgb ->
             ShellManager.writeSysfs(SysfsPaths.KCAL_CTRL, rgb)
         }
 
@@ -54,21 +70,30 @@ object SettingsApplier {
 
         ShellManager.writeSysfs(SysfsPaths.CHARGE_PRIORITY, if (repository.chargePriority.first()) "1" else "0")
         
-        repository.tcpCongestion.first()?.let { algo ->
+        // TCP Congestion
+        repository.tcpCongestion.first()?.takeIf { it.isNotBlank() }?.let { algo ->
             if (!ShellManager.writeSysfs(SysfsPaths.DFG_TCP_CONGESTION, algo)) {
                 ShellManager.writeSysfs(SysfsPaths.TCP_CONGESTION, algo)
             }
         }
 
+        // ZRAM - CAUTION: Potential crash point. Apply with delay or check.
         if (repository.zramEnabled.first()) {
             val size = repository.zramSize.first()
-            ShellManager.writeSysfs(SysfsPaths.ZRAM_RESET, "1")
-            ShellManager.writeSysfs(SysfsPaths.ZRAM_DISKSIZE, size)
-            com.topjohnwu.superuser.Shell.cmd("mkswap /dev/block/zram0", "swapon /dev/block/zram0").exec()
+            if (size.isNotBlank()) {
+                Log.i("SettingsApplier", "Applying ZRAM: $size")
+                ShellManager.writeSysfs(SysfsPaths.ZRAM_RESET, "1")
+                ShellManager.writeSysfs(SysfsPaths.ZRAM_DISKSIZE, size)
+                Shell.cmd("mkswap /dev/block/zram0", "swapon /dev/block/zram0").exec()
+            }
         }
 
+        // DPI - CAUTION: UI system impact
         repository.dpiValue.first()?.let { dpi ->
-            com.topjohnwu.superuser.Shell.cmd("wm density $dpi").exec()
+            if (dpi in 160..640) {
+                Log.i("SettingsApplier", "Applying DPI: $dpi")
+                Shell.cmd("wm density $dpi").exec()
+            }
         }
 
         ShellManager.writeSysfs(SysfsPaths.TOUCH_BOOST_ENABLED, if (repository.touchBoostEnabled.first()) "1" else "0")

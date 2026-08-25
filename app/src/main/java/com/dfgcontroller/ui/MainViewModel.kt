@@ -184,15 +184,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         checkIntegrity()
-        checkRoot()
-        loadInitialData()
-        applySavedProfile()
-        observeBypassSettings()
-        observeNewSettings()
-        startMemoryPolling()
-        startLogPolling()
-        checkForUpdates()
-        checkForKernelUpdates()
+        viewModelScope.launch {
+            // Sequential initialization for safety
+            checkRoot()
+            // Wait for root state to settle
+            delay(1.seconds)
+            
+            if (_isRootAvailable.value == true) {
+                loadInitialData()
+                applySavedProfile()
+                observeBypassSettings()
+                observeNewSettings()
+                startMemoryPolling()
+                startLogPolling()
+                checkForUpdates()
+                checkForKernelUpdates()
+            }
+        }
     }
 
     fun checkForKernelUpdates() {
@@ -302,8 +310,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 
                 val temp = ShellManager.readSysfs(SysfsPaths.THERMAL_ZONE) ?: 
                             ShellManager.readSysfs(SysfsPaths.THERMAL_STATUS) ?: "0"
-                val tempInt = temp.toIntOrNull() ?: 0
-                val displayTemp = if (tempInt > 1000) tempInt / 1000 else tempInt
+                val tempInt = temp.replace("[^0-9.-]".toRegex(), "").split(".")[0].toIntOrNull() ?: 0
+                val displayTemp = if (tempInt > 1000) tempInt / 1000 else if (tempInt < 0) 0 else tempInt
                 _thermalTemperature.value = "$displayTemp°C"
                 
                 val critical = displayTemp > 60
@@ -505,81 +513,77 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun applySavedProfile() {
-        viewModelScope.launch {
-            _isApplyingProfile.value = true
-            SettingsApplier.applyAll(getApplication())
-            _isApplyingProfile.value = false
-        }
+    private suspend fun applySavedProfile() {
+        _isApplyingProfile.value = true
+        SettingsApplier.applyAll(getApplication())
+        _isApplyingProfile.value = false
     }
 
-    private fun checkRoot() {
-        viewModelScope.launch {
-            val root = ShellManager.isRootAvailable()
-            _isRootAvailable.value = root
-            if (root) {
-                _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
-                // Perform additional diagnostics
-                val id = Shell.cmd("id").exec()
-                Log.i("MainViewModel", "Root ID check: ${id.out.joinToString(" ")}")
-                
-                val dfgCheck = Shell.cmd("test -d ${SysfsPaths.DFG_BASE}").exec()
-                if (dfgCheck.isSuccess) {
-                    Log.i("MainViewModel", "DFG Base directory found")
-                } else {
-                    Log.w("MainViewModel", "DFG Base directory NOT found at ${SysfsPaths.DFG_BASE}")
-                }
+    private suspend fun checkRoot() {
+        val root = ShellManager.isRootAvailable()
+        _isRootAvailable.value = root
+        if (root) {
+            _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
+            // Perform additional diagnostics
+            val id = Shell.cmd("id").exec()
+            Log.i("MainViewModel", "Root ID check: ${id.out.joinToString(" ")}")
+            
+            val dfgCheck = Shell.cmd("test -d ${SysfsPaths.DFG_BASE}").exec()
+            if (dfgCheck.isSuccess) {
+                Log.i("MainViewModel", "DFG Base directory found")
+            } else {
+                Log.w("MainViewModel", "DFG Base directory NOT found at ${SysfsPaths.DFG_BASE}")
             }
         }
     }
 
     fun retryRoot() {
-        checkRoot()
+        viewModelScope.launch {
+            checkRoot()
+        }
     }
 
-    private fun loadInitialData() {
-        viewModelScope.launch {
-            _kernelVersion.value = ShellManager.readSysfs(SysfsPaths.PROC_VERSION) ?: "Unknown"
-            
-            _currentGovernor.value = ShellManager.readSysfs(SysfsPaths.DFG_CPU_GOVERNOR, SysfsPaths.FALLBACK_GOVERNOR) ?: "-"
-            
-            val availableGovs = ShellManager.readSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors")
-            _availableGovernors.value = availableGovs?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
-            
-            _currentCpuMinFreq.value = ShellManager.readSysfs(SysfsPaths.CPU_MIN_FREQ, SysfsPaths.FALLBACK_MIN_FREQ) ?: "-"
-            _currentCpuMaxFreq.value = ShellManager.readSysfs(SysfsPaths.CPU_MAX_FREQ, SysfsPaths.FALLBACK_MAX_FREQ) ?: "-"
-            
-            _availableFrequencies.value = ShellManager.readSysfs(SysfsPaths.CPU_AVAILABLE_FREQ)?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+    private suspend fun loadInitialData() {
+        _kernelVersion.value = ShellManager.readSysfs(SysfsPaths.PROC_VERSION) ?: "Unknown"
+        
+        _currentGovernor.value = ShellManager.readSysfs(SysfsPaths.DFG_CPU_GOVERNOR, SysfsPaths.FALLBACK_GOVERNOR) ?: "-"
+        
+        val availableGovs = ShellManager.readSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors")
+        _availableGovernors.value = availableGovs?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+        
+        _currentCpuMinFreq.value = ShellManager.readSysfs(SysfsPaths.CPU_MIN_FREQ, SysfsPaths.FALLBACK_MIN_FREQ) ?: "-"
+        _currentCpuMaxFreq.value = ShellManager.readSysfs(SysfsPaths.CPU_MAX_FREQ, SysfsPaths.FALLBACK_MAX_FREQ) ?: "-"
+        
+        _availableFrequencies.value = ShellManager.readSysfs(SysfsPaths.CPU_AVAILABLE_FREQ)?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
 
-            val schedRaw = ShellManager.readSysfs(SysfsPaths.DFG_IO_SCHEDULER, SysfsPaths.IO_SCHEDULER)
-            _currentScheduler.value = parseScheduler(schedRaw)
-            
-            val availableScheds = ShellManager.readSysfs(SysfsPaths.IO_SCHEDULER)
-            _availableSchedulers.value = availableScheds?.replace("[", "")?.replace("]", "")?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
+        val schedRaw = ShellManager.readSysfs(SysfsPaths.DFG_IO_SCHEDULER, SysfsPaths.IO_SCHEDULER)
+        _currentScheduler.value = parseScheduler(schedRaw)
+        
+        val availableScheds = ShellManager.readSysfs(SysfsPaths.IO_SCHEDULER)
+        _availableSchedulers.value = availableScheds?.replace("[", "")?.replace("]", "")?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
 
-            val kcal = ShellManager.readSysfs(SysfsPaths.KCAL_CTRL) ?: "256 256 256"
-            val parts = kcal.split(" ")
-            if (parts.size >= 3) {
-                _kcalR.value = parts[0].toFloatOrNull() ?: 256f
-                _kcalG.value = parts[1].toFloatOrNull() ?: 256f
-                _kcalB.value = parts[2].toFloatOrNull() ?: 256f
-            }
-            _kcalEnabled.value = (ShellManager.readSysfs(SysfsPaths.KCAL_ENABLE) ?: "0") == "1"
-            _gpuConservative.value = (ShellManager.readSysfs(SysfsPaths.GPU_CONSERVATIVE) ?: "0") == "1"
-            
-            _fastCharge.value = (ShellManager.readSysfs(SysfsPaths.FAST_CHARGE) ?: "0") == "1"
-            _gamingChargeEnabled.value = (ShellManager.readSysfs(SysfsPaths.DFG_GAMING_CHARGE) ?: "0") == "1"
-            
-            _autoFastChargeActive.value = (ShellManager.readSysfs(SysfsPaths.AUTO_FAST_CHARGE_STATUS) ?: "0") == "1"
-            _tcpCongestion.value = ShellManager.readSysfs(SysfsPaths.DFG_TCP_CONGESTION, SysfsPaths.TCP_CONGESTION) ?: "-"
-            _availableTcpCongestions.value = ShellManager.readSysfs("/proc/sys/net/ipv4/tcp_available_congestion_control")?.split(" ") ?: listOf("cubic", "reno")
-            _dynamicFsync.value = (ShellManager.readSysfs(SysfsPaths.DFG_DYN_FSYNC, SysfsPaths.DYNAMIC_FSYNC) ?: "0") == "1"
-            
-            refreshDpiInfo()
-            _touchBoostEnabled.value = (ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_ENABLED) ?: "0") == "1"
-            _touchBoostDuration.value = ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_DURATION)?.toIntOrNull() ?: 60
-            _lmkAggressive.value = (ShellManager.readSysfs(SysfsPaths.LMK_AGGRESSIVE) ?: "0") == "1"
+        val kcal = ShellManager.readSysfs(SysfsPaths.KCAL_CTRL) ?: "256 256 256"
+        val parts = kcal.split(" ")
+        if (parts.size >= 3) {
+            _kcalR.value = parts[0].toFloatOrNull() ?: 256f
+            _kcalG.value = parts[1].toFloatOrNull() ?: 256f
+            _kcalB.value = parts[2].toFloatOrNull() ?: 256f
         }
+        _kcalEnabled.value = (ShellManager.readSysfs(SysfsPaths.KCAL_ENABLE) ?: "0") == "1"
+        _gpuConservative.value = (ShellManager.readSysfs(SysfsPaths.GPU_CONSERVATIVE) ?: "0") == "1"
+        
+        _fastCharge.value = (ShellManager.readSysfs(SysfsPaths.FAST_CHARGE) ?: "0") == "1"
+        _gamingChargeEnabled.value = (ShellManager.readSysfs(SysfsPaths.DFG_GAMING_CHARGE) ?: "0") == "1"
+        
+        _autoFastChargeActive.value = (ShellManager.readSysfs(SysfsPaths.AUTO_FAST_CHARGE_STATUS) ?: "0") == "1"
+        _tcpCongestion.value = ShellManager.readSysfs(SysfsPaths.DFG_TCP_CONGESTION, SysfsPaths.TCP_CONGESTION) ?: "-"
+        _availableTcpCongestions.value = ShellManager.readSysfs("/proc/sys/net/ipv4/tcp_available_congestion_control")?.split(" ") ?: listOf("cubic", "reno")
+        _dynamicFsync.value = (ShellManager.readSysfs(SysfsPaths.DFG_DYN_FSYNC, SysfsPaths.DYNAMIC_FSYNC) ?: "0") == "1"
+        
+        refreshDpiInfo()
+        _touchBoostEnabled.value = (ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_ENABLED) ?: "0") == "1"
+        _touchBoostDuration.value = ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_DURATION)?.toIntOrNull() ?: 60
+        _lmkAggressive.value = (ShellManager.readSysfs(SysfsPaths.LMK_AGGRESSIVE) ?: "0") == "1"
     }
 
     fun setFastCharge(enabled: Boolean) {

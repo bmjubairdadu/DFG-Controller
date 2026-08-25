@@ -15,11 +15,6 @@ object ShellManager {
             if (shell.isRoot) {
                 // Check for unified API
                 _isLegacyKernel = !Shell.cmd("test -e ${SysfsPaths.DFG_BASE}profile").exec().isSuccess
-                
-                // Try to set SELinux to permissive for debugging/troubleshooting if nodes inaccessible
-                if (_isLegacyKernel == true) {
-                    Shell.cmd("setenforce 0").exec()
-                }
                 true
             } else {
                 false

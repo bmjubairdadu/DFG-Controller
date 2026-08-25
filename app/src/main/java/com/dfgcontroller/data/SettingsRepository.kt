@@ -36,6 +36,7 @@ class SettingsRepository(private val context: Context) {
         val LMK_AGGRESSIVE = booleanPreferencesKey("lmk_aggressive")
         val CURRENT_PROFILE = stringPreferencesKey("current_profile")
         val THEME_COLOR = stringPreferencesKey("theme_color")
+        val FIRST_RUN = booleanPreferencesKey("first_run")
     }
 
     val cpuGovernor: Flow<String?> = context.dataStore.data.map { it[PreferencesKeys.CPU_GOVERNOR] }
@@ -60,8 +61,9 @@ class SettingsRepository(private val context: Context) {
     val touchBoostEnabled: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.TOUCH_BOOST_ENABLED] ?: false }
     val touchBoostDuration: Flow<Int> = context.dataStore.data.map { it[PreferencesKeys.TOUCH_BOOST_DURATION] ?: 60 }
     val lmkAggressive: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.LMK_AGGRESSIVE] ?: false }
-    val currentProfile: Flow<String> = context.dataStore.data.map { it[PreferencesKeys.CURRENT_PROFILE] ?: "Balanced" }
+    val currentProfile: Flow<String> = context.dataStore.data.map { it[PreferencesKeys.CURRENT_PROFILE] ?: "Default" }
     val themeColor: Flow<String> = context.dataStore.data.map { it[PreferencesKeys.THEME_COLOR] ?: "Cyan" }
+    val firstRun: Flow<Boolean> = context.dataStore.data.map { it[PreferencesKeys.FIRST_RUN] ?: true }
 
     suspend fun saveCpuGovernor(value: String) {
         context.dataStore.edit { it[PreferencesKeys.CPU_GOVERNOR] = value }
@@ -164,5 +166,9 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun saveThemeColor(value: String) {
         context.dataStore.edit { it[PreferencesKeys.THEME_COLOR] = value }
+    }
+
+    suspend fun setFirstRunCompleted() {
+        context.dataStore.edit { it[PreferencesKeys.FIRST_RUN] = false }
     }
 }

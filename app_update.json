@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 18,
-  "latest_version_name": "2.1.0",
+  "latest_version_code": 19,
+  "latest_version_name": "2.1.1",
   "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.0/DFG-Controller.apk",
   "sha256": "SKIP",
-  "changelog": "V2.1 PREMIUM. Improved UI with Root access animations. Fixed auto-update system. Animated launcher transitions.",
+  "changelog": "V2.1.1 PREMIUM. CRITICAL FIX for power-off issue. Improved safety during root grant. New animated logo and welcome experience.",
   "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.0",
   "mandatory": false
 }

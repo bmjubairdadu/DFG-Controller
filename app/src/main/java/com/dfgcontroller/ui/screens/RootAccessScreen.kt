@@ -92,21 +92,41 @@ fun RootAccessScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "INITIALIZING...",
-                        style = MaterialTheme.typography.labelLarge,
+                        text = "DFG CONTROLLER",
+                        style = MaterialTheme.typography.headlineLarge,
                         color = ElectricCyan,
                         fontFamily = OrbitronFamily,
+                        letterSpacing = 4.sp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "PREMIUM EDITION",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray,
+                        fontFamily = OrbitronFamily,
                         letterSpacing = 2.sp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    Text(
+                        text = "INITIALIZING SYSTEM...",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.White,
+                        fontFamily = OrbitronFamily,
+                        letterSpacing = 1.sp
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "Please grant Superuser permission to access system-level kernel tunables.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
+                        text = "Please grant Superuser permission to access kernel tunables.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.LightGray,
                         textAlign = TextAlign.Center,
-                        lineHeight = 24.sp
+                        lineHeight = 20.sp
                     )
                 }
             }

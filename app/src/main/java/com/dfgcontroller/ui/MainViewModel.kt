@@ -18,6 +18,7 @@ import com.dfgcontroller.core.SettingsApplier
 import com.dfgcontroller.core.SysfsPaths
 import com.dfgcontroller.data.SettingsRepository
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -182,17 +183,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _kernelUpdateStatus = MutableStateFlow<String?>(null)
     val kernelUpdateStatus: StateFlow<String?> = _kernelUpdateStatus.asStateFlow()
 
+    private val _isFirstRun = MutableStateFlow(false)
+    val isFirstRun: StateFlow<Boolean> = _isFirstRun.asStateFlow()
+
     init {
         checkIntegrity()
         viewModelScope.launch {
-            // Sequential initialization for safety
-            checkRoot()
-            // Wait for root state to settle
-            delay(1.seconds)
+            // Sequential and safe initialization
+            val root = ShellManager.isRootAvailable()
+            _isRootAvailable.value = root
             
-            if (_isRootAvailable.value == true) {
+            if (root) {
+                // Wait for shell to stabilize
+                delay(2000)
+                
+                // Minimal check for legacy
+                ShellManager.checkLegacyStatus()
+                _isLegacyKernel.value = ShellManager.isLegacyKernelDetected()
+                
+                val firstRun = repository.firstRun.first()
+                _isFirstRun.value = firstRun
+                
                 loadInitialData()
-                applySavedProfile()
+                
+                if (!firstRun) {
+                    applySavedProfile()
+                } else {
+                    Log.i("MainViewModel", "First run: Skipping auto-apply for safety.")
+                }
+                
                 observeBypassSettings()
                 observeNewSettings()
                 startMemoryPolling()
@@ -200,6 +219,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 checkForUpdates()
                 checkForKernelUpdates()
             }
+        }
+    }
+
+    fun completeFirstRun() {
+        viewModelScope.launch {
+            repository.setFirstRunCompleted()
+            _isFirstRun.value = false
         }
     }
 

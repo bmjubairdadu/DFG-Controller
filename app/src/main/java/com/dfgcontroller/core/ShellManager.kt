@@ -11,18 +11,15 @@ object ShellManager {
 
     suspend fun isRootAvailable(): Boolean = withContext(Dispatchers.IO) {
         try {
-            val shell = Shell.getShell()
-            if (shell.isRoot) {
-                // Check for unified API
-                _isLegacyKernel = !Shell.cmd("test -e ${SysfsPaths.DFG_BASE}profile").exec().isSuccess
-                true
-            } else {
-                false
-            }
+            Shell.getShell().isRoot
         } catch (e: Exception) {
             Log.e("ShellManager", "Error checking root", e)
             false
         }
+    }
+
+    suspend fun checkLegacyStatus() = withContext(Dispatchers.IO) {
+        _isLegacyKernel = !Shell.cmd("test -e ${SysfsPaths.DFG_BASE}profile").exec().isSuccess
     }
 
     suspend fun isLegacyKernelDetected(): Boolean {

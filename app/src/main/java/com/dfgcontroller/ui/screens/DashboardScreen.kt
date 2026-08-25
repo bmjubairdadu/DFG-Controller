@@ -42,6 +42,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
     val isLegacyKernel by viewModel.isLegacyKernel.collectAsState()
     val autoFastChargeActive by viewModel.autoFastChargeActive.collectAsState()
     val currentProfileName by viewModel.currentProfileName.collectAsState()
+    val isFirstRun by viewModel.isFirstRun.collectAsState()
     val updateManifest by viewModel.updateManifest.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
     
@@ -209,6 +210,48 @@ fun DashboardScreen(viewModel: MainViewModel) {
                 accentColor = accentColor,
                 onUpdate = { viewModel.startKernelUpdate(context) }
             )
+        }
+
+        if (isFirstRun) {
+            WelcomeDialog(
+                accentColor = accentColor,
+                onDismiss = { viewModel.completeFirstRun() }
+            )
+        }
+    }
+}
+
+@Composable
+fun WelcomeDialog(accentColor: Color, onDismiss: () -> Unit) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkSurface),
+            shape = RoundedCornerShape(24.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, accentColor)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = "WELCOME TO DFG 2.0",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = accentColor,
+                    fontFamily = com.dfgcontroller.ui.theme.OrbitronFamily
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Root access granted! For safety, no profiles have been applied yet.\n\nPlease explore the tunables or select a preset profile to begin optimizing your kernel.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = accentColor),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("GET STARTED", color = DarkBackground)
+                }
+            }
         }
     }
 }

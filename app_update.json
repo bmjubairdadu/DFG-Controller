@@ -1,9 +1,9 @@
 {
-  "latest_version_code": 21,
-  "latest_version_name": "2.1.3",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v1.0/DFG-Controller.apk",
-  "sha256": "SKIP",
-  "changelog": "V2.1.3 PREMIUM. EXTREME SAFE MODE. Removed all automatic sysfs reads on startup. New manual 'Initialize' system to prevent security shutdowns.",
-  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v1.0",
+  "latest_version_code": 22,
+  "latest_version_name": "2.1.4",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v2.1.4/app-debug.apk",
+  "sha256": "30c0d414d7a435bb3adc16971aaceed9d6aee4514adf84d858ff5762aa4adb8b",
+  "changelog": "V2.1.4 PREMIUM. Added Kernel Diagnostics to Compatibility screen. Detects CONFIG_KALLSYMS_ALL status to prevent patch failures. Deleted obsolete SecurityUtils.",
+  "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v2.1.4",
   "mandatory": false
 }

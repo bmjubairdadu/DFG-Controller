@@ -52,6 +52,20 @@ object ShellManager {
         return _isLegacyKernel ?: true
     }
 
+    suspend fun checkKernelConfig(key: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // First check /proc/config.gz (standard)
+            val configGz = Shell.cmd("zcat /proc/config.gz | grep \"$key=y\"").exec()
+            if (configGz.isSuccess) return@withContext true
+
+            // Fallback: check if the kernel exposes it elsewhere (some kernels do)
+            val ikconfig = Shell.cmd("grep \"$key=y\" /proc/ikconfig").exec()
+            ikconfig.isSuccess
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     suspend fun writeSysfs(path: String, value: String): Boolean = withContext(Dispatchers.IO) {
         try {
             if (value.isBlank() || path.isBlank()) return@withContext false

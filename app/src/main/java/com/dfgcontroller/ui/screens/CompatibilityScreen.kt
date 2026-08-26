@@ -5,20 +5,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dfgcontroller.ui.MainViewModel
 import com.dfgcontroller.ui.theme.ElectricCyan
 import com.dfgcontroller.ui.theme.DarkBackground
 import com.dfgcontroller.ui.theme.DarkSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CompatibilityScreen(onBack: () -> Unit) {
+fun CompatibilityScreen(viewModel: MainViewModel, onBack: () -> Unit) {
     val accentColor = MaterialTheme.colorScheme.primary
+    val isKallsymsAllEnabled by viewModel.isKallsymsAllEnabled.collectAsStateWithLifecycle()
+    
     val features = listOf(
         "Module Loading (LKM)" to "Full support for external kernel modules.",
         "init.d Support" to "Auto-run scripts on boot from /system/etc/init.d.",
@@ -59,6 +65,63 @@ fun CompatibilityScreen(onBack: () -> Unit) {
                 val (title, desc) = features[index]
                 FeatureCard(title, desc, accentColor)
             }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    "KERNEL DIAGNOSTICS",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = accentColor,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                DiagnosticCard(
+                    title = "KALLSYMS_ALL Status",
+                    status = when (isKallsymsAllEnabled) {
+                        true -> "Enabled (Safe)"
+                        false -> "Disabled (Warning)"
+                        null -> "Checking..."
+                    },
+                    isSafe = isKallsymsAllEnabled == true,
+                    description = "Required for advanced patchers like APatch/FolkPatch to resolve internal symbols.",
+                    accentColor = accentColor
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DiagnosticCard(
+    title: String,
+    status: String,
+    isSafe: Boolean,
+    description: String,
+    accentColor: Color
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (isSafe) Icons.Default.CheckCircle else Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = if (isSafe) accentColor else Color.Red,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = title, style = MaterialTheme.typography.titleMedium, color = Color.White)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Status: $status",
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isSafe) Color.White else Color.Red
+            )
+            Text(text = description, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
     }
 }

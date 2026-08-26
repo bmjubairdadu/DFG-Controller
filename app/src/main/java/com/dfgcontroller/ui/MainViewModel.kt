@@ -142,6 +142,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLegacyKernel = MutableStateFlow(false)
     val isLegacyKernel: StateFlow<Boolean> = _isLegacyKernel.asStateFlow()
 
+    private val _isKallsymsAllEnabled = MutableStateFlow<Boolean?>(null)
+    val isKallsymsAllEnabled: StateFlow<Boolean?> = _isKallsymsAllEnabled.asStateFlow()
+
     private val _availableSchedulers = MutableStateFlow<List<String>>(emptyList())
     val availableSchedulers: StateFlow<List<String>> = _availableSchedulers.asStateFlow()
 
@@ -624,6 +627,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _touchBoostEnabled.value = (ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_ENABLED) ?: "0") == "1"
         _touchBoostDuration.value = ShellManager.readSysfs(SysfsPaths.TOUCH_BOOST_DURATION)?.toIntOrNull() ?: 60
         _lmkAggressive.value = (ShellManager.readSysfs(SysfsPaths.LMK_AGGRESSIVE) ?: "0") == "1"
+
+        _isKallsymsAllEnabled.value = ShellManager.checkKernelConfig("CONFIG_KALLSYMS_ALL")
     }
 
     fun setFastCharge(enabled: Boolean) {

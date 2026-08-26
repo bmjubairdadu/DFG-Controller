@@ -274,7 +274,7 @@ fun MainScaffold(viewModel: MainViewModel) {
                 )
             }
             composable(Screen.Compatibility.route) {
-                CompatibilityScreen(onBack = { navController.popBackStack() })
+                CompatibilityScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
             }
             composable(Screen.Wakelocks.route) {
                 WakelockScreen(onBack = { navController.popBackStack() })

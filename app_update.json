@@ -1,9 +1,9 @@
 {
   "latest_version_code": 22,
   "latest_version_name": "2.1.4",
-  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v2.1.4/app-debug.apk",
+  "download_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/download/v2.1.4/DFG-Controller.apk",
   "sha256": "30c0d414d7a435bb3adc16971aaceed9d6aee4514adf84d858ff5762aa4adb8b",
-  "changelog": "V2.1.4 PREMIUM. Added Kernel Diagnostics to Compatibility screen. Detects CONFIG_KALLSYMS_ALL status to prevent patch failures. Deleted obsolete SecurityUtils.",
+  "changelog": "V2.1.4 PREMIUM. Clean start with unified naming. Added Kernel Diagnostics to Compatibility screen. Detects CONFIG_KALLSYMS_ALL status to prevent patch failures.",
   "release_url": "https://github.com/bmjubairdadu/DFG-Controller/releases/tag/v2.1.4",
   "mandatory": false
 }
